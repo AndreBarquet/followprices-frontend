@@ -5,8 +5,9 @@ import { getAllProducts } from "../services/products";
 function Home() {
   const [productsList, setProductsList] = useState([]);
   useEffect(() => {
-    const listOfProducts = getAllProducts();
-    setProductsList(listOfProducts.products.data);
+    // const listOfProducts = getAllProducts();
+    // debugger
+    // setProductsList(listOfProducts?.products?.data);
   }, []);
 
   return (

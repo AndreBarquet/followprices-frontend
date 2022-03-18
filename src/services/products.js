@@ -1,4 +1,7 @@
 import axios from "axios";
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
+axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 export function getAllProducts() {
 
@@ -25,11 +28,10 @@ export function getAllProducts() {
   //   }
   // }
 
-  axios.get('localhost:8080/product/all')
+  axios.get('/product/all')
     .then(function (response) {
       // handle success
       console.log(response);
-      debugger;
       return response;
     })
     .catch(function (error) {
