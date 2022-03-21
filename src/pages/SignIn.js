@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { GoogleLogin } from 'react-google-login';
 
 function Copyright(props) {
   return (
@@ -31,6 +32,7 @@ const theme = createTheme();
 
 export default function SignIn() {
   const history = useNavigate();
+  const googleAuthClientId = "482301149779-lh3rt9hv2gpf50j9bttvnea6u3ihfe4u.apps.googleusercontent.com";
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -41,6 +43,10 @@ export default function SignIn() {
     });
     history('/home');
   };
+
+  const responseGoogle = (response) => {
+    console.log(response);
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -57,54 +63,38 @@ export default function SignIn() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
+          <Typography component="h1" variant="h5">Login</Typography>
+
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
+            <TextField margin="normal" required fullWidth id="email" label="Email Address" name="email" autoComplete="email" autoFocus />
+            <TextField margin="normal" required fullWidth name="password" label="Password" type="password" id="password" autoComplete="current-password" />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
+
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Login</Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+                <Link href="#" variant="body2">Esqueceu a senha?</Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
+                <Link href="#" variant="body2">{"Não tem uma conta? Cadrastre-se"}</Link>
               </Grid>
             </Grid>
+
+            <Grid container style={{ marginTop: 25 }}>
+              <Grid item xs>
+                <GoogleLogin
+                  clientId={googleAuthClientId}
+                  buttonText="Entrar com o Google"
+                  onSuccess={responseGoogle}
+                  onFailure={responseGoogle}
+                  cookiePolicy={'single_host_origin'}
+                />
+              </Grid>
+            </Grid>
+
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
