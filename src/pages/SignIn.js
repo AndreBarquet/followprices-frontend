@@ -15,24 +15,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from 'react-google-login';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
 const theme = createTheme();
 
 export default function SignIn() {
   const history = useNavigate();
-  const googleAuthClientId = "482301149779-lh3rt9hv2gpf50j9bttvnea6u3ihfe4u.apps.googleusercontent.com";
+  const googleAuthClientId = "705227677300-djs1641cblhnd99kbe76gp120j01q5f6.apps.googleusercontent.com";//AuthClientId Vitor
+  // const googleAuthClientId = "482301149779-lh3rt9hv2gpf50j9bttvnea6u3ihfe4u.apps.googleusercontent.com";//AuthClientId André
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -63,7 +51,7 @@ export default function SignIn() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">Login</Typography>
+          <Typography component="h1" variant="h5">Followprices</Typography>
 
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField margin="normal" required fullWidth id="email" label="Email Address" name="email" autoComplete="email" autoFocus />
@@ -76,10 +64,10 @@ export default function SignIn() {
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Login</Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">Esqueceu a senha?</Link>
+                <Link href="#" variant="body2">Forgot the password?</Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">{"Não tem uma conta? Cadrastre-se"}</Link>
+                <Link href="#" variant="body2">{"Don't have an account? Sign up"}</Link>
               </Grid>
             </Grid>
 
@@ -87,7 +75,7 @@ export default function SignIn() {
               <Grid item xs>
                 <GoogleLogin
                   clientId={googleAuthClientId}
-                  buttonText="Entrar com o Google"
+                  buttonText="Sign in with Google"
                   onSuccess={responseGoogle}
                   onFailure={responseGoogle}
                   cookiePolicy={'single_host_origin'}
@@ -97,7 +85,6 @@ export default function SignIn() {
 
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
   );
