@@ -5,7 +5,8 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 export function request({ method, url, data, onSuccess, onError } = {}) {
   if (notExists(method) || notExists(url)) return;
-  axios({ method, url, data })
+
+  return axios({ method, url, data })
     .then(function (response) {
       // handle success
       return response?.data;
