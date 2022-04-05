@@ -106,7 +106,7 @@ export default function Login() {
           </Box>
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={showErrorSnackbar}
+            open={true}
             autoHideDuration={6000}
             onClose={() => setShowErrorSnackbar(false)}
           >

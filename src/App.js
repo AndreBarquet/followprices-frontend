@@ -6,16 +6,19 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PageNotFound from './pages/PageNotFound';
 import BasicLayoutPages from './BasicLayoutPages';
 import Login from './pages/Login';
+import { SnackbarProvider } from 'notistack';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route exact path="/" element={<Login />} />
-        <Route path="/*" element={(<BasicLayoutPages />)} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <SnackbarProvider maxSnack={3} /*anchorOrigin={{ vertical: 'top', horizontal: 'right' }}*/ autoHideDuration={5000}>
+      <BrowserRouter>
+        <Routes>
+          <Route exact path="/" element={<Login />} />
+          <Route path="/*" element={(<BasicLayoutPages />)} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>=
+    </SnackbarProvider>
   );
 }
 

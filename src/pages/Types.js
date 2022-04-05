@@ -4,17 +4,22 @@ import React, { useState, useEffect } from "react";
 import { fetchAllTypes, deleteTypeById } from "../model/typesStore";
 import { useSelector, useDispatch } from 'react-redux';
 
+import { useSnackbar } from "notistack";
+
 // Components
 import { DataGrid } from "@mui/x-data-grid";
+import { CircularProgress, Pagination } from "@mui/material";
+
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // ENUMS
 import { DEFAULT_ORDENATION, DEFAULT_PAGINATION, TYPES_ENUM } from "../app/generalEnums";
-import { notExists } from "../utils/utils";
-import { Pagination } from "@mui/material";
+import { exists, notExists } from "../utils/utils";
 
 function Types() {
   const dispatch = useDispatch();
-  const { typesList, typesListLoading, totalPages } = useSelector((state) => state.types);
+  const { enqueueSnackbar } = useSnackbar();
+  const { typesList, typesListLoading, totalPages, deleteLoading } = useSelector((state) => state.types);
 
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
@@ -27,6 +32,14 @@ function Types() {
 
   function deleteType(record) {
     if (notExists(record?.id)) return;
+
+
+    const callback = (response) => {
+      if (exists(response?.error)) {
+        enqueueSnackbar('This is a success message!', { variant: 'error' });
+        return;
+      }
+    }
     dispatch(deleteTypeById(record?.id))
   }
 
@@ -46,7 +59,15 @@ function Types() {
   }, [ordenation, pagination]);
 
   const renderActionButtons = ({ row }) => (
-    <div style={{ cursor: 'pointer' }} onClick={() => deleteType(row)}>Excluir</div>
+    <div style={{ position: 'relative' }}>
+      <DeleteIcon onClick={() => deleteType(row)} disabled />
+      {deleteLoading && (
+        <CircularProgress
+          size={35}
+          sx={{ color: 'red', position: 'absolute', top: -6, left: -6, zIndex: 1, }}
+        />
+      )}
+    </div>
   )
 
   const columns = [
@@ -64,6 +85,7 @@ function Types() {
         checkboxSelection
         hideFooterPagination
         hideFooter
+        sortingMode="server"
         onSortModelChange={onOrdenationChange}
         rowHeight={45}
         loading={typesListLoading}

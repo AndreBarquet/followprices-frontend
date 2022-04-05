@@ -9,6 +9,7 @@ const initialState = {
   typesList: [],
   typesListLoading: false,
   totalPages: 0,
+  deleteLoading: false,
 };
 
 export const typesStore = createSlice({
@@ -31,6 +32,19 @@ export const typesStore = createSlice({
     [fetchAllTypes.rejected]: (state) => {
       state.typesListLoading = false;
       state.typesList = [];
+    },
+
+    // DELETE
+    [deleteTypeById.pending]: (state) => {
+      state.deleteLoading = true;
+    },
+    [deleteTypeById.fulfilled]: (state, { payload }) => {
+      state.deleteLoading = false;
+      if (payload === null || payload === undefined) return;
+      state.typesList = payload?.content;
+    },
+    [deleteTypeById.rejected]: (state) => {
+      state.deleteLoading = false;
     },
   }
 });

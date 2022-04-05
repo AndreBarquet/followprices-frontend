@@ -14,6 +14,7 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.26.1",
+    "notistack": "^2.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-google-login": "^5.2.2",

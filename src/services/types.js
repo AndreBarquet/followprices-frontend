@@ -7,6 +7,6 @@ export async function getAllTypes(payload) {
   return await request({ method: 'get', url: `/type/all?${params}` })
 };
 
-export async function deleteType(payload) {
-  return await request({ method: 'delete', url: `/type/${payload}` })
+export async function deleteType(payload, callback) {
+  return await request({ method: 'delete', url: `/type/${payload}`, callback })
 };
