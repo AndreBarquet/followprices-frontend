@@ -1,12 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { getAllProducts } from '../services/products';
+import { deleteProduct, getAllProducts } from '../services/products';
 
 const fetchAllProducts = createAsyncThunk('products/getAll', getAllProducts);
+const deleteProductById = createAsyncThunk('products/delete', deleteProduct);
 
 const initialState = {
   productsList: [],
   productsListLoading: false,
+  totalPages: 0,
 };
 
 export const productsStore = createSlice({
@@ -23,7 +25,8 @@ export const productsStore = createSlice({
     [fetchAllProducts.fulfilled]: (state, { payload }) => {
       state.productsListLoading = false;
       if (payload === null || payload === undefined) return;
-      state.productsList = payload?.products;
+      state.productsList = payload?.content;
+      state.totalPages = payload?.totalPages;
     },
     [fetchAllProducts.rejected]: (state) => {
       state.productsListLoading = false;
@@ -33,5 +36,5 @@ export const productsStore = createSlice({
 });
 
 // export const { increment } = products.actions;
-export { fetchAllProducts };
+export { fetchAllProducts, deleteProductById };
 export default productsStore.reducer;

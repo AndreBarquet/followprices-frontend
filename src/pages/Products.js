@@ -1,33 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 // Redux
-import { fetchAllTypes, deleteTypeById } from "../model/typesStore";
+import { deleteProductById, fetchAllProducts } from "../model/productsStore";
 import { useSelector, useDispatch } from 'react-redux';
-
-// Components
-import { DataGrid } from "@mui/x-data-grid";
-
-// ENUMS
-import { DEFAULT_ORDENATION, DEFAULT_PAGINATION, TYPES_ENUM } from "../app/generalEnums";
 import { notExists } from "../utils/utils";
+import { DEFAULT_ORDENATION, DEFAULT_PAGINATION } from "../app/generalEnums";
+import { DataGrid } from "@mui/x-data-grid";
 import { Pagination } from "@mui/material";
 
-function Types() {
+function Products() {
   const dispatch = useDispatch();
-  const { typesList, typesListLoading, totalPages } = useSelector((state) => state.types);
+  const { productsList, productsListLoading, totalPages } = useSelector((state) => state.products);
 
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  function retrieveTypesList() {
+  function retrieveProductsList() {
     const params = { ...pagination, ...ordenation };
-    dispatch(fetchAllTypes(params))
+    dispatch(fetchAllProducts(params))
   }
 
-  function deleteType(record) {
+  function deleteProduct(record) {
     if (notExists(record?.id)) return;
-    dispatch(deleteTypeById(record?.id))
+    dispatch(deleteProductById(record?.id))
   }
 
   function onOrdenationChange(value) {
@@ -42,16 +38,16 @@ function Types() {
   }
 
   useEffect(() => {
-    retrieveTypesList();
-  }, [ordenation, pagination]);
+    retrieveProductsList();
+  }, [ordenation, pagination,]);
 
   const renderActionButtons = ({ row }) => (
-    <div style={{ cursor: 'pointer' }} onClick={() => deleteType(row)}>Excluir</div>
+    <div style={{ cursor: 'pointer' }} onClick={() => deleteProduct(row)}>Excluir</div>
   )
 
   const columns = [
     { field: 'id', headerName: 'ID' },
-    { field: 'type', headerName: 'Tipo', sortable: true, valueGetter: ({ row }) => TYPES_ENUM[row?.type] },
+    { field: 'name', headerName: 'Produto' },
     { headerName: 'Ações', renderCell: renderActionButtons },
   ];
 
@@ -59,18 +55,18 @@ function Types() {
     <div className="App">
       <DataGrid
         autoHeight
-        rows={typesList ?? []}
+        rows={productsList ?? []}
         columns={columns ?? []}
         checkboxSelection
         hideFooterPagination
         hideFooter
         onSortModelChange={onOrdenationChange}
         rowHeight={45}
-        loading={typesListLoading}
+        loading={productsListLoading}
       />
       <Pagination count={totalPages} size="small" onChange={onPageChange} />
     </div>
   );
 }
 
-export default Types;
+export default Products;
