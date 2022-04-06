@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 
 // Redux
-import { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById } from "../model/typesStore";
+import { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById, fetchTypesShort } from "../model/typesStore";
 import { useSelector, useDispatch } from 'react-redux';
 
 import { useSnackbar } from "notistack";
 
 // Components
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, CircularProgress, Pagination, TextField } from "@mui/material";
+import { Button, CircularProgress, Pagination, TextField, Autocomplete } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { TableHeader } from "../utils/styles";
 
@@ -30,8 +30,12 @@ const DEFAULT_FORM_VALUES = { type: '', description: '' };
 function Types() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { typesList, typesListLoading, totalPages, deleteLoading, insertLoading, updateLoading } = useSelector((state) => state.types);
+  const {
+    typesList, typesListLoading, totalPages, deleteLoading, insertLoading, updateLoading, typesShortListLoading,
+    typesShortList,
+  } = useSelector((state) => state.types);
 
+  const [filters, setFilters] = useState({ type: null });
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
   const [formFields, setFormFields] = useState({ ...DEFAULT_FORM_VALUES });
@@ -43,6 +47,15 @@ function Types() {
   function retrieveTypesList() {
     const params = { ...pagination, ...ordenation };
     dispatch(fetchAllTypes({ payload: params }))
+  }
+
+  function retrieveTypesShort() {
+    dispatch(fetchTypesShort())
+  }
+
+  function retrieveQualquerCoisa() {
+    const params = { type: filters?.type?.type };
+    dispatch(fetchTypesShort({ payload: params }))
   }
 
   function onOrdenationChange(value) {
@@ -139,6 +152,16 @@ function Types() {
     retrieveTypesList();
   }, [ordenation, pagination]);
 
+  useEffect(() => {
+    if (notExists(filters?.type)) return;
+    retrieveQualquerCoisa();
+  }, [filters?.type]);
+
+  useEffect(() => {
+    retrieveTypesShort();
+  }, []); // Quando esse array do useEffect esta vazio, ele chama logo quando entra na pagina
+
+
   const renderActionButtons = ({ row }) => (
     <div style={{ position: 'relative' }}>
       {!deleteLoading ? <DeleteIcon onClick={() => deleteType(row)} className="tableActionIcon" /> : <CircularProgress size={30} />}
@@ -187,6 +210,16 @@ function Types() {
       {showForm && renderNewTypeForm()}
       <div className="container">
         <TableHeader>
+          <Autocomplete
+            disablePortal
+            options={typesShortList}
+            // colocar na propriedade o campo da lsita de objetos que vai conter o texto a ser mostrado na lista
+            getOptionLabel={(option) => option.description}
+            sx={{ width: 300 }}
+            value={filters?.type}
+            onChange={(_, value) => setFilters({ ...filters, type: value })}
+            renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
+          />
           <span>Lista de tipos</span>
           <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm}>
             Novo tipo

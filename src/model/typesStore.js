@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { deleteType, getAllTypes, insertType, updateType } from '../services/types';
+import { deleteType, getAllTypes, getShort, insertType, updateType } from '../services/types';
 
 const fetchAllTypes = createAsyncThunk('types/getAll', getAllTypes);
 const insertNewType = createAsyncThunk('types/insert', insertType);
 const updateTypeById = createAsyncThunk('types/update', updateType);
 const deleteTypeById = createAsyncThunk('types/delete', deleteType);
+const fetchTypesShort = createAsyncThunk('types/short', getShort);
 
 const initialState = {
   typesList: [],
@@ -14,6 +15,8 @@ const initialState = {
   deleteLoading: false,
   insertLoading: false,
   updateLoading: false,
+  typesShortListLoading: false,
+  typesShortList: [],
 };
 
 export const typesStore = createSlice({
@@ -36,6 +39,20 @@ export const typesStore = createSlice({
     [fetchAllTypes.rejected]: (state) => {
       state.typesListLoading = false;
       state.typesList = [];
+    },
+
+    // GET SHORT
+    [fetchTypesShort.pending]: (state) => {
+      state.typesShortListLoading = true;
+    },
+    [fetchTypesShort.fulfilled]: (state, { payload }) => {
+      state.typesShortListLoading = false;
+      if (payload === null || payload === undefined) return;
+      state.typesShortList = payload;
+    },
+    [fetchTypesShort.rejected]: (state) => {
+      state.typesShortListLoading = false;
+      state.typesShortList = [];
     },
 
     // INSERT
@@ -74,5 +91,5 @@ export const typesStore = createSlice({
 });
 
 // export const { increment } = products.actions;
-export { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById };
+export { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById, fetchTypesShort };
 export default typesStore.reducer;
