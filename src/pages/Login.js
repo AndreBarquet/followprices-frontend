@@ -56,7 +56,7 @@ export default function Login() {
     localStorage.setItem("avatar", loggedUserInfo?.avatar);
     localStorage.setItem("googleLogin", true);
 
-    dispatch(setCurrentuser(loggedUserInfo))
+    dispatch(setCurrentuser({ payload: loggedUserInfo }))
     history('/inicio');
   }
 
@@ -106,7 +106,7 @@ export default function Login() {
           </Box>
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={true}
+            open={showErrorSnackbar}
             autoHideDuration={6000}
             onClose={() => setShowErrorSnackbar(false)}
           >

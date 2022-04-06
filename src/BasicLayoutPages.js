@@ -14,11 +14,13 @@ function BasicLayoutPages() {
   return (
     <Fragment>
       <Navbar routes={routesList} />
-      <Routes>
-        {routesList.map(currentRoute => (
-          <Route path={currentRoute?.path} element={currentRoute?.component} />
-        ))}
-      </Routes>
+      <div style={{ paddingTop: 15, backgroundColor: '#f3f5f9', height: '100vh' }}>
+        <Routes>
+          {routesList.map(currentRoute => (
+            <Route path={currentRoute?.path} element={currentRoute?.component} />
+          ))}
+        </Routes>
+      </div>
       <QuickAccessButton />
     </Fragment>
   );

@@ -18,12 +18,12 @@ function Products() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   function retrieveProductsList() {
     const params = { ...pagination, ...ordenation };
-    dispatch(fetchAllProducts(params))
+    dispatch(fetchAllProducts({ payload: params }))
   }
 
   function deleteProduct(record) {
     if (notExists(record?.id)) return;
-    dispatch(deleteProductById(record?.id))
+    dispatch(deleteProductById({ payload: record?.id }))
   }
 
   function onOrdenationChange(value) {
@@ -64,7 +64,9 @@ function Products() {
         rowHeight={45}
         loading={productsListLoading}
       />
-      <Pagination count={totalPages} size="small" onChange={onPageChange} />
+      <div className="paginationAlign">
+        <Pagination count={totalPages} size="small" onChange={onPageChange} />
+      </div>
     </div>
   );
 }

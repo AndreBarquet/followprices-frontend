@@ -12,8 +12,9 @@ export function request({ method, url, data, callback } = {}) {
       if (exists(callback)) callback(response?.data);
       return response?.data;
     })
-    .catch(function (error) {
+    .catch(function (response) {
       // handle error
+      const error = response?.error ?? "Ocorreu um erro";
       if (exists(callback)) callback({ error });
       return null;
     });
@@ -25,4 +26,19 @@ export function exists(value) {
 
 export function notExists(value) {
   return value === null || value === undefined;
+}
+
+export function isEmptyString(value) {
+  if (typeof value !== "string") return false;
+  if (value.trim() === "") return true;
+  return false;
+}
+
+export function safeNull(value) {
+  if (notExists(value)) return "-";
+  return value;
+}
+
+export function requiredFieldError(value) {
+  return notExists(value) || isEmptyString(value);
 }
