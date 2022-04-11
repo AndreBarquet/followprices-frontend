@@ -19,8 +19,7 @@ const theme = createTheme();
 
 export default function SignIn() {
   const history = useNavigate();
-  const googleAuthClientId = "705227677300-djs1641cblhnd99kbe76gp120j01q5f6.apps.googleusercontent.com";//AuthClientId Vitor
-  // const googleAuthClientId = "482301149779-lh3rt9hv2gpf50j9bttvnea6u3ihfe4u.apps.googleusercontent.com";//AuthClientId André
+  const googleAuthClientId = "705227677300-djs1641cblhnd99kbe76gp120j01q5f6.apps.googleusercontent.com";
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -29,7 +28,7 @@ export default function SignIn() {
       email: data.get('email'),
       password: data.get('password'),
     });
-    history('/home');
+    history('/inicio');
   };
 
   const responseGoogle = (response) => {
