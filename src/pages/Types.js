@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 
 // Redux
-import { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById, fetchTypesShort } from "../model/typesStore";
+import { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById } from "../model/typesStore";
 import { useSelector, useDispatch } from 'react-redux';
 
 import { useSnackbar } from "notistack";
 
 // Components
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, CircularProgress, Pagination, TextField, Autocomplete } from "@mui/material";
+import { Button, CircularProgress, Pagination, TextField, Grid, Tooltip } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
-import { TableHeader } from "../utils/styles";
+import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,12 +30,9 @@ const DEFAULT_FORM_VALUES = { type: '', description: '' };
 function Types() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const {
-    typesList, typesListLoading, totalPages, deleteLoading, insertLoading, updateLoading, typesShortListLoading,
-    typesShortList,
-  } = useSelector((state) => state.types);
 
-  const [filters, setFilters] = useState({ type: null });
+  const { typesList, typesListLoading, totalPages, deleteLoading, insertLoading, updateLoading } = useSelector((state) => state.types);
+
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
   const [formFields, setFormFields] = useState({ ...DEFAULT_FORM_VALUES });
@@ -47,15 +44,6 @@ function Types() {
   function retrieveTypesList() {
     const params = { ...pagination, ...ordenation };
     dispatch(fetchAllTypes({ payload: params }))
-  }
-
-  function retrieveTypesShort() {
-    dispatch(fetchTypesShort())
-  }
-
-  function retrieveFilters() {
-    const params = { type: filters?.type?.type };
-    dispatch(fetchTypesShort({ payload: params }))
   }
 
   function onOrdenationChange(value) {
@@ -144,7 +132,6 @@ function Types() {
 
     setFormFields(body);
     setShowForm(true);
-    // ou assim setFormFields({...record}) !!! Porem assim, os campos que vem do back tem que estar exatamente iguais aos do form que vc usa no input
     setIsUpdating(true);
   }
 
@@ -152,20 +139,11 @@ function Types() {
     retrieveTypesList();
   }, [ordenation, pagination]);
 
-  useEffect(() => {
-    if (notExists(filters?.type)) return;
-    retrieveFilters();
-  }, [filters?.type]);
-
-  useEffect(() => {
-    retrieveTypesShort();
-  }, []); // Quando esse array do useEffect esta vazio, ele chama logo quando entra na pagina
-
 
   const renderActionButtons = ({ row }) => (
     <div style={{ position: 'relative' }}>
-      {!deleteLoading ? <DeleteIcon onClick={() => deleteType(row)} className="tableActionIcon" /> : <CircularProgress size={30} />}
-      {<EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" />}
+      {!deleteLoading ? <Tooltip title="Excluir tipo" placement="top"><DeleteIcon onClick={() => deleteType(row)} className="tableActionIcon" /></Tooltip> : <CircularProgress size={30} />}
+      {<Tooltip title="Editar tipo" placement="top"><EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" /></Tooltip>}
     </div>
   )
 
@@ -178,49 +156,51 @@ function Types() {
 
   const renderNewTypeForm = () => {
     return (
-      <div className="container">
-        <TextField
-          style={{ marginRight: 15 }}
-          error={requiredFieldError(formFields?.type) && hasSendForm}
-          value={formFields?.type}
-          onChange={e => setFormFields({ ...formFields, type: e?.target?.value })}
-          label="ENUM do tipo"
-          helperText={requiredFieldError(formFields?.type) && hasSendForm ? "Campo obrigatório" : ""}
-        />
-        <TextField
-          error={requiredFieldError(formFields?.description) && hasSendForm}
-          value={formFields?.description}
-          onChange={e => setFormFields({ ...formFields, description: e?.target?.value })}
-          label="Tipo"
-          helperText={requiredFieldError(formFields?.description) && hasSendForm ? "Campo obrigatório" : ""}
-        />
-        <div style={{ marginTop: 20, marginBottom: 10 }}>
-          <Button variant="outlined" onClick={onFormCancel} style={{ marginRight: 15 }} startIcon={<CloseIcon />}>
-            Cancelar
-          </Button>
-          <LoadingButton variant="contained" onClick={isUpdating ? updateType : insertType} loading={updateLoading || insertLoading} startIcon={<SaveIcon />}>
-            {isUpdating ? 'Atualizar' : 'Inserir'}
-          </LoadingButton>
+      <Grid item xs={12} md={6} lg={5} xl={3}>
+        <div className="container" style={{ textAlign: "center" }}>
+          <FormTitle>{isUpdating ? 'Editar Tipo' : 'Novo Tipo'}</FormTitle>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(formFields?.type) && hasSendForm}
+                value={formFields?.type}
+                onChange={e => setFormFields({ ...formFields, type: e?.target?.value })}
+                label="ENUM do tipo"
+                fullWidth
+                helperText={requiredFieldError(formFields?.type) && hasSendForm ? "Campo obrigatório" : ""}
+                variant="standard"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(formFields?.description) && hasSendForm}
+                value={formFields?.description}
+                onChange={e => setFormFields({ ...formFields, description: e?.target?.value })}
+                label="Tipo"
+                fullWidth
+                helperText={requiredFieldError(formFields?.description) && hasSendForm ? "Campo obrigatório" : ""}
+                variant="standard"
+              />
+            </Grid>
+          </Grid>
+          <FormBtnContainer>
+            <Button variant="outlined" onClick={onFormCancel} startIcon={<CloseIcon />}>Cancelar</Button>
+            <LoadingButton variant="contained" onClick={isUpdating ? updateType : insertType} loading={updateLoading || insertLoading} startIcon={<SaveIcon />}>
+              {isUpdating ? 'Atualizar' : 'Inserir'}
+            </LoadingButton>
+          </FormBtnContainer>
         </div>
-      </div>
+      </Grid>
     )
   }
 
   return (
     <div className="App">
-      {showForm && renderNewTypeForm()}
+      <Grid container spacing={2} className="alignContentCenter">
+        {showForm && renderNewTypeForm()}
+      </Grid>
       <div className="container">
         <TableHeader>
-          <Autocomplete
-            disablePortal
-            options={typesShortList}
-            // colocar na propriedade o campo da lsita de objetos que vai conter o texto a ser mostrado na lista
-            getOptionLabel={(option) => option.description}
-            sx={{ width: 300 }}
-            value={filters?.type}
-            onChange={(_, value) => setFilters({ ...filters, type: value })}
-            renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
-          />
           <span>Lista de tipos</span>
           <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm}>
             Novo tipo

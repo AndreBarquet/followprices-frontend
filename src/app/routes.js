@@ -1,5 +1,5 @@
 // Icons
-import { Home, Dvr } from '@mui/icons-material';
+import { Home, Dvr, AppSettingsAlt } from '@mui/icons-material';
 
 // Pages
 import HomePage from '../pages/Home';
@@ -9,8 +9,8 @@ import Types from '../pages/Types';
 
 const routesList = [
   { path: "/inicio", name: "Início", component: <HomePage />, icon: <Home /> },
-  { path: "/tipos", name: "Tipos de Produtos", component: <Types />, icon: <Dvr /> },
-  { path: "/produtos", name: "Produtos", component: <Products />, icon: <Dvr /> }
+  { path: "/produtos", name: "Produtos", component: <Products />, icon: <Dvr /> },
+  { path: "/tipos", name: "Tipos de Produtos", component: <Types />, icon: <AppSettingsAlt /> },
 ]
 
 export default routesList;

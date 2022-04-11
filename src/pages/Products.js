@@ -2,13 +2,21 @@ import React, { useEffect, useState } from "react";
 
 // Redux
 import { deleteProductById, fetchAllProducts, insertNewProduct, updateProductById } from "../model/productsStore";
+import { fetchTypesShort } from "../model/typesStore";
 import { useSelector, useDispatch } from 'react-redux';
-import { exists, notExists, requiredFieldError, safeNull } from "../utils/utils";
-import { DEFAULT_ORDENATION, DEFAULT_PAGINATION } from "../app/generalEnums";
+import { insertNewPrice } from "../model/pricesStore";
+
+// Components
 import { DataGrid } from "@mui/x-data-grid";
-import { Autocomplete, Button, CircularProgress, Pagination, TextField } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, Grid, Pagination, TextField, Tooltip } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { TableHeader } from "../utils/styles";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CurrencyTextField from '@unicef/material-ui-currency-textfield';
+
+// Utils
+import { exists, formatDateToRequest, notExists, requiredFieldError, safeNull } from "../utils/utils";
+import { DEFAULT_ORDENATION, DEFAULT_PAGINATION } from "../app/generalEnums";
+import { useSnackbar } from "notistack";
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -16,25 +24,32 @@ import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import DolarIcon from '@mui/icons-material/AttachMoney';
 
-import { useSnackbar } from "notistack";
-import { fetchTypesShort } from "../model/typesStore";
+// Styles
+import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 
-const DEFAULT_FORM_VALUES = { name: '', description: '', typeId: '' };
+const DEFAULT_PRODUCT_VALUES = { name: null, description: null, typeId: null };
+const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: null, inTermValue: null, productId: null };
 
 function Products() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { productsList, productsListLoading, totalPages, inserLoading, updateLoading, deleteLoading } = useSelector((state) => state.products);
-  const { typeslist, typesShortList } = useSelector((state) => state.types);
+  const { productsList, productsListLoading, totalPages, insertLoading, updateLoading, deleteLoading } = useSelector((state) => state.products);
+  const { typesShortList } = useSelector((state) => state.types);
+  const { insertPriceLoading } = useSelector((state) => state.prices);
 
   const [filters, setFilters] = useState({ name: null });
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
-  const [formFields, setFormFields] = useState({});
-  const [hasSendForm, setHasSendForm] = useState(false);
+  const [productFormFields, setProductFormFields] = useState({ ...DEFAULT_PRODUCT_VALUES });
+  const [hasSendProductForm, setHasSendProductForm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
+
+  const [hasSendPriceForm, setHasSendPriceForm] = useState(false)
+  const [priceFormFields, setPriceFormFields] = useState({ ...DEFAULT_PRICE_VALUES });
+  const [showAddPriceForm, setShowAddPriceForm] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   function retrieveProductsList() {
@@ -44,11 +59,6 @@ function Products() {
 
   function retrieveTypesShort() {
     dispatch(fetchTypesShort())
-  }
-
-  function deleteProduct(record) {
-    if (notExists(record?.id)) return;
-    dispatch(deleteProductById({ payload: record?.id }))
   }
 
   function onOrdenationChange(value) {
@@ -64,37 +74,47 @@ function Products() {
 
   function onFormCancel() {
     setIsUpdating(false);
-    setHasSendForm(false);
-    setFormFields({ ...DEFAULT_FORM_VALUES });
-    setShowForm(false);
+    setHasSendProductForm(false);
+    setProductFormFields({ ...DEFAULT_PRODUCT_VALUES });
+    setShowProductForm(false);
+  }
+
+  function onPriceFormCancel() {
+    setShowAddPriceForm(false);
+    setHasSendPriceForm(false);
+    setPriceFormFields({ ...DEFAULT_PRICE_VALUES });
+  }
+
+  function onAddPriceOpen(record) {
+    setPriceFormFields({ ...priceFormFields, productId: record?.id });
+    setShowAddPriceForm(true);
   }
 
   function openInsertForm() {
-    setShowForm(true);
+    setShowProductForm(true);
     setIsUpdating(false);
   }
 
   function insertProduct() {
-    setHasSendForm(true);
+    setHasSendProductForm(true);
 
-    const hasSendForm = requiredFieldError(formFields?.name) || requiredFieldError(formFields?.description || requiredFieldError(formFields?.typeId));
-    if (hasSendForm) return;
+    const hasSendProductForm = requiredFieldError(productFormFields?.name) || requiredFieldError(productFormFields?.description || requiredFieldError(productFormFields?.typeId));
+    if (hasSendProductForm) return;
 
     const callback = (response) => {
       if (exists(response?.error)) {
         enqueueSnackbar(response?.error, { variant: 'error' });
         return;
       }
-
       enqueueSnackbar('Novo produto inserido com sucesso', { variant: 'success' });
     }
 
-    dispatch(insertNewProduct({ payload: formFields, callback }));
+    dispatch(insertNewProduct({ payload: productFormFields, callback }));
   }
 
   function updateProduct() {
-    setHasSendForm(true);
-    const hasSomeError = requiredFieldError(formFields?.name) || requiredFieldError(formFields?.description) || requiredFieldError(formFields?.typeId);
+    setHasSendProductForm(true);
+    const hasSomeError = requiredFieldError(productFormFields?.name) || requiredFieldError(productFormFields?.description) || requiredFieldError(productFormFields?.typeId);
 
     if (hasSomeError) return;
 
@@ -103,13 +123,12 @@ function Products() {
         enqueueSnackbar(response?.error, { variant: 'error' });
         return;
       }
-
       onFormCancel();
       retrieveProductsList();
       enqueueSnackbar('Produto atualizado com sucesso', { variant: 'success' });
     };
 
-    dispatch(updateProductById({ payload: formFields, callback }));
+    dispatch(updateProductById({ payload: productFormFields, callback }));
   }
 
   function deleteProduct(record) {
@@ -120,7 +139,6 @@ function Products() {
         enqueueSnackbar(response?.error, { variant: 'error' });
         return;
       }
-
       retrieveProductsList();
       enqueueSnackbar('Produto excluido com sucesso', { variant: 'success' });
     }
@@ -136,10 +154,25 @@ function Products() {
       typeId: record?.typeId
     };
 
-    setFormFields(body);
-    setShowForm(true);
-    // ou assim setFormFields({...record}) !!! Porem assim, os campos que vem do back tem que estar exatamente iguais aos do form que vc usa no input
+    setProductFormFields(body);
+    setShowProductForm(true);
+    // ou assim setProductFormFields({...record}) !!! Porem assim, os campos que vem do back tem que estar exatamente iguais aos do form que vc usa no input
     setIsUpdating(true);
+  }
+
+  function insertPrice() {
+    setHasSendPriceForm(true);
+    const payload = { ...priceFormFields, date: formatDateToRequest(priceFormFields?.date) };
+    const callback = (response) => {
+      if (exists(response?.error)) {
+        enqueueSnackbar(response?.error, { variant: 'error' });
+        return;
+      }
+
+      onPriceFormCancel();
+      enqueueSnackbar('Preço adicionado com sucesso', { variant: 'success' });
+    }
+    dispatch(insertNewPrice({ payload, callback }))
   }
 
   useEffect(() => {
@@ -152,40 +185,129 @@ function Products() {
 
   const renderActionButtons = ({ row }) => (
     <div style={{ position: 'relative' }}>
-      {!deleteLoading ? <DeleteIcon onClick={() => deleteProduct(row)} className="tableActionIcon" /> : <CircularProgress size={30} />}
-      {<EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" />}
+      {!deleteLoading ?
+        <Tooltip title="Excluir produto" placement="top">
+          <DeleteIcon onClick={() => deleteProduct(row)} className="tableActionIcon" />
+        </Tooltip>
+        :
+        <CircularProgress size={30} />
+      }
+      {<Tooltip title="Editar produto" placement="top"><EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" /></Tooltip>}
+      {<Tooltip title="Adicionar preço" placement="top"><DolarIcon onClick={() => onAddPriceOpen(row)} className="tableActionIcon" /></Tooltip>}
     </div>
   )
 
   const renderNewProductForm = () => {
     return (
-      <div className="container">
-        <TextField
-          style={{ marginRight: 15 }}
-          error={requiredFieldError(formFields?.name) && hasSendForm}
-          value={formFields?.name}
-          onChange={e => setFormFields({ ...formFields, name: e?.target?.value })}
-          label="Nome do produto"
-        ></TextField>
-        <TextField
-          style={{ marginRight: 15 }}
-          error={requiredFieldError(formFields?.description) && hasSendForm}
-          value={formFields?.description}
-          onChange={e => setFormFields({ ...formFields, description: e?.target?.value })}
-          label="Descrição do produto"
-        ></TextField>
-        <TextField
-          error={requiredFieldError(formFields?.typeId) && hasSendForm}
-          value={formFields?.typeId}
-          onChange={e => setFormFields({ ...formFields, typeId: e?.target?.value })}
-          label="Tipo do produto"
-        ></TextField>
-        <div style={{ marginTop: 20, marginBottom: 10 }}>
-          <Button variant="outlined" onClick={onFormCancel} style={{ marginRight: 15 }} startIcon={<CloseIcon />}>Cancelar</Button>
-          <LoadingButton variant="contained" onClick={isUpdating ? updateProduct : insertProduct} style={{ marginRight: 15 }} startIcon={<SaveIcon />}>{isUpdating ? 'Atualizar' : 'Inserir'}</LoadingButton>
+      <Grid item xs={12} md={6} lg={5} xl={3}>
+        <div className="container" style={{ textAlign: "center" }}>
+          <FormTitle>{isUpdating ? 'Editar Produto' : 'Novo Produto'}</FormTitle>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(productFormFields?.name) && hasSendProductForm}
+                value={productFormFields?.name}
+                onChange={e => setProductFormFields({ ...productFormFields, name: e?.target?.value })}
+                label="Nome do produto"
+                variant="standard"
+                fullWidth
+                helperText={requiredFieldError(productFormFields?.name) && hasSendProductForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(productFormFields?.description) && hasSendProductForm}
+                value={productFormFields?.description}
+                onChange={e => setProductFormFields({ ...productFormFields, description: e?.target?.value })}
+                label="Descrição do produto"
+                variant="standard"
+                fullWidth
+                helperText={requiredFieldError(productFormFields?.description) && hasSendProductForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(productFormFields?.typeId) && hasSendProductForm}
+                value={productFormFields?.typeId}
+                onChange={e => setProductFormFields({ ...productFormFields, typeId: e?.target?.value })}
+                label="Tipo do produto"
+                variant="standard"
+                fullWidth
+                helperText={requiredFieldError(productFormFields?.typeId) && hasSendProductForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+          </Grid>
+          <FormBtnContainer>
+            <Button variant="outlined" onClick={onFormCancel} startIcon={<CloseIcon />}>
+              Cancelar
+            </Button>
+            <LoadingButton variant="contained" onClick={isUpdating ? updateProduct : insertProduct} startIcon={<SaveIcon />} loading={isUpdating ? updateLoading : insertLoading}>
+              {isUpdating ? 'Atualizar' : 'Inserir'}
+            </LoadingButton>
+          </FormBtnContainer>
         </div>
-      </div>
+      </Grid>
     )
+  }
+
+  const renderAddPriceForm = () => {
+    return (
+      <Grid item xs={12} md={6} lg={5} xl={3}>
+        <div className="container">
+          <FormTitle>Adicionar Preço</FormTitle>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <DatePicker
+                label="Data"
+                value={priceFormFields?.date}
+                onChange={value => setPriceFormFields({ ...priceFormFields, date: value })}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={requiredFieldError(priceFormFields?.date, 'date') && hasSendPriceForm}
+                    variant="standard"
+                    fullWidth
+                    helperText={requiredFieldError(priceFormFields?.date) && hasSendPriceForm ? "Campo obrigatório" : ""}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CurrencyTextField
+                error={requiredFieldError(priceFormFields?.inCashValue) && hasSendPriceForm}
+                value={priceFormFields?.inCashValue}
+                onChange={(_, value) => setPriceFormFields({ ...priceFormFields, inCashValue: value })}
+                label="Valor à vista"
+                variant="standard"
+                fullWidth
+                currencySymbol="R$"
+                decimalCharacter=","
+                digitGroupSeparator="."
+                helperText={requiredFieldError(priceFormFields?.inCashValue) && hasSendPriceForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CurrencyTextField
+                error={requiredFieldError(priceFormFields?.inTermValue) && hasSendPriceForm}
+                value={priceFormFields?.inTermValue}
+                onChange={(_, value) => setPriceFormFields({ ...priceFormFields, inTermValue: value })}
+                label="Valor à prazo"
+                variant="standard"
+                fullWidth
+                currencySymbol="R$"
+                decimalCharacter=","
+                digitGroupSeparator="."
+                helperText={requiredFieldError(priceFormFields?.inTermValue) && hasSendPriceForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+          </Grid>
+          <FormBtnContainer>
+            <Button variant="outlined" onClick={onPriceFormCancel} startIcon={<CloseIcon />}>Cancelar</Button>
+            <LoadingButton variant="contained" onClick={insertPrice} startIcon={<SaveIcon />}>Salvar</LoadingButton>
+          </FormBtnContainer>
+        </div>
+      </Grid>
+    );
   }
 
   const columns = [
@@ -198,8 +320,11 @@ function Products() {
 
   return (
     <div className="App">
+      <Grid container spacing={2} className="alignContentCenter">
+        {showProductForm && renderNewProductForm()}
+        {showAddPriceForm && renderAddPriceForm()}
+      </Grid>
       <div className="container">
-        {showForm && renderNewProductForm()}
         <TableHeader>
           <Autocomplete
             disablePortal
@@ -212,9 +337,9 @@ function Products() {
             renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
           />
           <span>Lista de produtos</span>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm}>
+          <LoadingButton variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} loading={insertPriceLoading}>
             Novo produto
-          </Button>
+          </LoadingButton>
         </TableHeader>
         <DataGrid
           autoHeight

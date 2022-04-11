@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
 }
 
 .App-logo {
@@ -48,6 +48,12 @@
   padding: 15px;
   background-color: white;
   border-radius: 3px;
+}
+
+.alignContentCenter{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes App-logo-float {

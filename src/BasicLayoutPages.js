@@ -3,8 +3,13 @@ import './App.css';
 import { Routes, Route } from "react-router-dom";
 
 // Components
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import QuickAccessButton from './Components/QuickAccessButton/QuickAccessButton';
 import Navbar from './Components/Navbar/Navbar';
+
+// date locale
+import pt from 'date-fns/locale/pt-BR';
 
 // Routes list
 import routesList from './app/routes';
@@ -12,7 +17,7 @@ import routesList from './app/routes';
 function BasicLayoutPages() {
 
   return (
-    <Fragment>
+    <LocalizationProvider locale={pt} dateAdapter={AdapterDateFns}>
       <Navbar routes={routesList} />
       <div style={{ paddingTop: 15, backgroundColor: '#f3f5f9', height: '100vh' }}>
         <Routes>
@@ -22,7 +27,7 @@ function BasicLayoutPages() {
         </Routes>
       </div>
       <QuickAccessButton />
-    </Fragment>
+    </LocalizationProvider>
   );
 }
 

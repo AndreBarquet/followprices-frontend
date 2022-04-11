@@ -1,4 +1,6 @@
 import axios from "axios";
+import { format } from "date-fns";
+
 axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
@@ -41,4 +43,14 @@ export function safeNull(value) {
 
 export function requiredFieldError(value) {
   return notExists(value) || isEmptyString(value);
+}
+
+export function formatDate(value) {
+  if (notExists(value)) return;
+  return format(value, 'dd/MM/yyyy');
+}
+
+export function formatDateToRequest(value) {
+  if (notExists(value)) return;
+  return format(value, 'yyyy-MM-dd')
 }
