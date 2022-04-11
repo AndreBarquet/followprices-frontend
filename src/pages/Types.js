@@ -202,7 +202,7 @@ function Types() {
       <div className="container">
         <TableHeader>
           <span>Lista de tipos</span>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
             Novo tipo
           </Button>
         </TableHeader>

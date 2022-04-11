@@ -40,13 +40,13 @@ export const productsStore = createSlice({
 
     // INSERT
     [insertNewProduct.pending]: (state) => {
-      state.deleteLoading = true;
+      state.insertLoading = true;
     },
     [insertNewProduct.fulfilled]: (state, { payload }) => {
-      state.deleteLoading = false;
+      state.insertLoading = false;
     },
     [insertNewProduct.rejected]: (state) => {
-      state.deleteLoading = false;
+      state.insertLoading = false;
     },
 
     // UPDATE

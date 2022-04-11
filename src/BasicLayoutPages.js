@@ -19,7 +19,7 @@ function BasicLayoutPages() {
   return (
     <LocalizationProvider locale={pt} dateAdapter={AdapterDateFns}>
       <Navbar routes={routesList} />
-      <div style={{ paddingTop: 15, backgroundColor: '#f3f5f9', height: '100vh' }}>
+      <div style={{ paddingTop: 15, backgroundColor: '#f3f5f9', minHeight: '90vh' }}>
         <Routes>
           {routesList.map(currentRoute => (
             <Route path={currentRoute?.path} element={currentRoute?.component} />

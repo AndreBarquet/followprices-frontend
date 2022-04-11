@@ -8,7 +8,7 @@ import { insertNewPrice } from "../model/pricesStore";
 
 // Components
 import { DataGrid } from "@mui/x-data-grid";
-import { Autocomplete, Button, CircularProgress, InputLabel, MenuItem, Pagination, Select, TextField, Grid, Tooltip } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, MenuItem, Pagination, TextField, Grid, Tooltip } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CurrencyTextField from '@unicef/material-ui-currency-textfield';
@@ -29,8 +29,8 @@ import DolarIcon from '@mui/icons-material/AttachMoney';
 // Styles
 import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 
-const DEFAULT_PRODUCT_VALUES = { name: null, description: null, typeId: null };
-const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: null, inTermValue: null, productId: null };
+const DEFAULT_PRODUCT_VALUES = { name: '', description: '', typeId: '' };
+const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: '', inTermValue: '', productId: '' };
 
 function Products() {
   const dispatch = useDispatch();
@@ -39,7 +39,7 @@ function Products() {
   const { typesShortList } = useSelector((state) => state.types);
   const { insertPriceLoading } = useSelector((state) => state.prices);
 
-  const [filters, setFilters] = useState({ name: null });
+  const [filters, setFilters] = useState({ typeId: '' });
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION });
   const [ordenation, setOrdenation] = useState({ ...DEFAULT_ORDENATION });
   const [productFormFields, setProductFormFields] = useState({ ...DEFAULT_PRODUCT_VALUES });
@@ -106,6 +106,9 @@ function Products() {
         enqueueSnackbar(response?.error, { variant: 'error' });
         return;
       }
+
+      onFormCancel();
+      retrieveProductsList();
       enqueueSnackbar('Novo produto inserido com sucesso', { variant: 'success' });
     }
 
@@ -226,15 +229,21 @@ function Products() {
               />
             </Grid>
             <Grid item xs={12}>
-              <Select
+              <TextField
+                error={requiredFieldError(productFormFields?.typeId) && hasSendProductForm}
+                variant="standard"
                 value={productFormFields?.typeId}
-                style={{ width: '100%' }}
+                style={{ textAlign: 'left' }}
+                fullWidth
+                select
                 onChange={(event) => setProductFormFields({ ...productFormFields, typeId: event?.target?.value })}
+                label="Tipo de produto"
+                helperText={requiredFieldError(productFormFields?.typeId) && hasSendProductForm ? "Campo obrigatório" : ""}
               >
                 {exists(typesShortList) && typesShortList.length > 0 && typesShortList.map(currentType => (
                   <MenuItem value={currentType?.id}>{currentType?.description}</MenuItem>
                 ))}
-              </Select>
+              </TextField>
             </Grid>
           </Grid>
           <FormBtnContainer>
@@ -337,7 +346,7 @@ function Products() {
             renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
           />
           <span>Lista de produtos</span>
-          <LoadingButton variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} loading={insertPriceLoading}>
+          <LoadingButton variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} loading={insertPriceLoading} disabled={isUpdating}>
             Novo produto
           </LoadingButton>
         </TableHeader>
