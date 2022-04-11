@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { AppBar, Avatar, Box, Drawer, Toolbar, Typography, IconButton, MenuItem, Menu, List, ListItem, ListItemText, ListItemIcon, } from '@mui/material';
+import { AppBar, Avatar, Box, Drawer, Toolbar, Typography, IconButton, MenuItem, Menu, List, ListItem, ListItemText, ListItemIcon, Button, } from '@mui/material';
 import { GoogleLogout } from 'react-google-login';
 
 import MenuIcon from '@mui/icons-material/Menu';
@@ -40,7 +40,8 @@ const Navbar = props => {
   }
 
   function onLogout() {
-    history("/")
+    localStorage.clear();
+    history("/");
   }
 
   function handleMenu(event) {
@@ -98,9 +99,10 @@ const Navbar = props => {
               open={Boolean(avatarMenu)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
-              {localStorage.getItem("googleLogin") === "true" && <GoogleLogoutBtn clientId={config?.googleAuthClientId} buttonText="Logout" onLogoutSuccess={onLogout} />}
+              {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={handleClose}>My account</MenuItem> */}
+              {localStorage.getItem("googleLogin") === "true" && <GoogleLogoutBtn clientId={config?.googleAuthClientId} buttonText="Sair" onLogoutSuccess={onLogout} />}
+              {localStorage.getItem("googleLogin") === "false" && <MenuItem onClick={onLogout}>Sair</MenuItem>}
             </Menu>
           </div>
         </Toolbar>

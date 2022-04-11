@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { login } from '../services/login';
 
 // import { getAllProducts } from '../services/products';
 
-const userLogin = createAsyncThunk('products/getAll', () => { });
+const userLogin = createAsyncThunk('currentUser/login', login);
 
 const initialState = {
   loginLoading: false,

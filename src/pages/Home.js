@@ -19,8 +19,7 @@ function Home() {
 
   return (
     <div className="App">
-      {productsListLoading && <p>loading...</p>}
-      {productsList.map(currentProduct => currentProduct.name)}
+      Tela de inicio
     </div>
   );
 }

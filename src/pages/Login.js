@@ -22,22 +22,45 @@ import {
 } from '@mui/material';
 
 import { useDispatch } from 'react-redux';
-import { setCurrentuser } from "../model/currentUserStore";
+import { setCurrentuser, userLogin } from "../model/currentUserStore";
 import config from '../app/config';
+import { exists } from "../utils/utils";
+
 
 const theme = createTheme();
 
 export default function Login() {
+  const [loginParams, setLoginParams] = useState({ email: '', password: '' });
   const dispatch = useDispatch();
   const history = useNavigate();
 
   const [showErrorSnackbar, setShowErrorSnackbar] = useState(false);
+  const [snackbarErrorMessage, setSnackbarErrorMessage] = useState('');
 
   function handleSubmit(event) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({ email: data.get('email'), password: data.get('password'), });
-    history('/inicio');
+    const payload = loginParams;
+    localStorage.clear();
+
+    const callback = (response) => {
+      if (exists(response?.error)) {
+        setSnackbarErrorMessage(response?.error);
+        setShowErrorSnackbar(true);
+        return;
+      }
+
+      const loggedUserInfo = { name: response?.name, email: response?.email };
+
+      localStorage.setItem("name", loggedUserInfo?.name);
+      localStorage.setItem("email", loggedUserInfo?.email);
+      localStorage.setItem("googleLogin", false);
+
+      dispatch(setCurrentuser({ payload: loggedUserInfo }))
+      history('/inicio');
+    };
+
+    dispatch(userLogin({ payload, callback }))
+
   };
 
   function loginGoogleSuccess(response) {
@@ -61,6 +84,7 @@ export default function Login() {
   }
 
   function loginGoogleError(response) {
+    setSnackbarErrorMessage('Ocorreu um erro ao realizar o login com o Google');
     setShowErrorSnackbar(true);
   }
 
@@ -72,20 +96,38 @@ export default function Login() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">Followprices</Typography>
+          <Typography component="h1" variant="h5">Realizar Login</Typography>
 
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField margin="normal" required fullWidth id="email" label="Email Address" name="email" autoComplete="email" autoFocus />
-            <TextField margin="normal" required fullWidth name="password" label="Password" type="password" id="password" autoComplete="current-password" />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={loginParams?.email}
+              onChange={e => setLoginParams({ ...loginParams, email: e?.target?.value })}
             />
-
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={loginParams?.password}
+              onChange={e => setLoginParams({ ...loginParams, password: e?.target?.value })}
+            />
+            {/* <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" /> */}
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>Login</Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">Forgot the password?</Link>
+                <Link href="#" variant="body2">Esqueceu a senha?</Link>
               </Grid>
               <Grid item>
                 <Link href="#" variant="body2">{"Don't have an account? Sign up"}</Link>
@@ -111,7 +153,8 @@ export default function Login() {
             onClose={() => setShowErrorSnackbar(false)}
           >
             <Alert onClose={() => setShowErrorSnackbar(false)} severity="error" sx={{ width: '100%' }}>
-              Ocorreu um erro ao realizar o login com o Google  </Alert>
+              {snackbarErrorMessage}
+            </Alert>
           </Snackbar>
         </Box>
       </Container>
