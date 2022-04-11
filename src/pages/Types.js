@@ -211,7 +211,7 @@ function Types() {
           autoHeight
           rows={typesList ?? []}
           columns={columns ?? []}
-          // checkboxSelection
+          checkboxSelection
           headerHeight={45}
           hideFooterPagination
           hideFooter

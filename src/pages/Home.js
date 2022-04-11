@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 function Home() {
   const dispatch = useDispatch();
-  const { productsList, productsListLoading } = useSelector((state) => state.products);
+  const { } = useSelector((state) => state.products);
 
   function retrieveProductsList() {
     dispatch(fetchAllProducts())

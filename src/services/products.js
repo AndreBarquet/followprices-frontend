@@ -6,7 +6,7 @@ export async function getAllProducts({ payload } = {}) {
   return await request({ method: 'get', url: `/product/all?${params}` })
 };
 
-export async function insertProduct(payload, callback) {
+export async function insertProduct({ payload, callback } = {}) {
   return await request({ method: 'post', url: '/product', data: payload, callback })
 };
 

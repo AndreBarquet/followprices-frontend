@@ -8,7 +8,7 @@ import { insertNewPrice } from "../model/pricesStore";
 
 // Components
 import { DataGrid } from "@mui/x-data-grid";
-import { Autocomplete, Button, CircularProgress, Grid, Pagination, TextField, Tooltip } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, InputLabel, MenuItem, Pagination, Select, TextField, Grid, Tooltip } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CurrencyTextField from '@unicef/material-ui-currency-textfield';
@@ -98,7 +98,7 @@ function Products() {
   function insertProduct() {
     setHasSendProductForm(true);
 
-    const hasSendProductForm = requiredFieldError(productFormFields?.name) || requiredFieldError(productFormFields?.description || requiredFieldError(productFormFields?.typeId));
+    const hasSendProductForm = requiredFieldError(productFormFields?.name) || requiredFieldError(productFormFields?.description) || requiredFieldError(productFormFields?.typeId);
     if (hasSendProductForm) return;
 
     const callback = (response) => {
@@ -226,15 +226,15 @@ function Products() {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                error={requiredFieldError(productFormFields?.typeId) && hasSendProductForm}
+              <Select
                 value={productFormFields?.typeId}
-                onChange={e => setProductFormFields({ ...productFormFields, typeId: e?.target?.value })}
-                label="Tipo do produto"
-                variant="standard"
-                fullWidth
-                helperText={requiredFieldError(productFormFields?.typeId) && hasSendProductForm ? "Campo obrigatório" : ""}
-              />
+                style={{ width: '100%' }}
+                onChange={(event) => setProductFormFields({ ...productFormFields, typeId: event?.target?.value })}
+              >
+                {exists(typesShortList) && typesShortList.length > 0 && typesShortList.map(currentType => (
+                  <MenuItem value={currentType?.id}>{currentType?.description}</MenuItem>
+                ))}
+              </Select>
             </Grid>
           </Grid>
           <FormBtnContainer>
@@ -345,7 +345,8 @@ function Products() {
           autoHeight
           rows={productsList ?? []}
           columns={columns ?? []}
-          checkboxSelection
+          headerHeight={45}
+          // checkboxSelection
           hideFooterPagination
           hideFooter
           onSortModelChange={onOrdenationChange}
