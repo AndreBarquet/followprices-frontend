@@ -53,7 +53,7 @@ function Types() {
     dispatch(fetchTypesShort())
   }
 
-  function retrieveQualquerCoisa() {
+  function retrieveFilters() {
     const params = { type: filters?.type?.type };
     dispatch(fetchTypesShort({ payload: params }))
   }
@@ -154,7 +154,7 @@ function Types() {
 
   useEffect(() => {
     if (notExists(filters?.type)) return;
-    retrieveQualquerCoisa();
+    retrieveFilters();
   }, [filters?.type]);
 
   useEffect(() => {
@@ -170,9 +170,10 @@ function Types() {
   )
 
   const columns = [
-    { field: 'id', headerName: 'ID', flex: 1, },
-    { field: 'type', headerName: 'Tipo', sortable: true, flex: 1, valueGetter: ({ row }) => safeNull(row?.description) },
-    { headerName: 'Ações', flex: 1, renderCell: renderActionButtons },
+    { field: 'id', headerName: 'ID', flex: 1 },
+    { field: 'description', headerName: 'Descrição', flex: 1 },
+    { field: 'type', headerName: 'Tipo', sortable: true, flex: 1, valueGetter: ({ row }) => safeNull(row?.type) },
+    { headerName: 'Ações', renderCell: renderActionButtons, flex: 1 },
   ];
 
   const renderNewTypeForm = () => {
