@@ -6,10 +6,10 @@ import { isNotNumber, isNotString, notExists } from '../../utils/utils';
  * Display a formatted number, using or not: prefix, suffix, value colors, etc.
  */
 function FormattedNumber(props) {
-  const { value, prefix, suffix, removeScale = false, precisionScale = "2", useBRformat = true } = props;
+  const { value, prefix, suffix, removeScale = false, precisionScale = 2, useBRformat = true } = props;
   if (notExists(value) || (isNotNumber(value) && isNotString(value)) || isNaN(value)) return "-";
 
-  const decimalOption = removeScale ? {} : { decimalScale: precisionScale.toString(), fixedDecimalScale: true };
+  const decimalOption = removeScale ? {} : { decimalScale: precisionScale, fixedDecimalScale: true };
 
   return (
     <CurrencyFormat

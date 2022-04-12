@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { getAllProducts, insertProduct, updateProduct, deleteProduct, getProductsShort } from '../services/products';
+import { getAllProducts, insertProduct, updateProduct, deleteProduct, getProductsShort, getProductsGroupedByType } from '../services/products';
 
 const fetchAllProducts = createAsyncThunk('products/getAll', getAllProducts);
+const fetchProductsGrouped = createAsyncThunk('products/getGrouped', getProductsGroupedByType);
 const insertNewProduct = createAsyncThunk('products/insert', insertProduct);
 const updateProductById = createAsyncThunk('products/update', updateProduct);
 const deleteProductById = createAsyncThunk('products/delete', deleteProduct);
@@ -17,6 +18,8 @@ const initialState = {
   deleteLoading: false,
   loadingProductsShortList: false,
   productsShortList: [],
+  groupedProductsList: null,
+  groupedProductsListLoading: false,
 };
 
 export const productsStore = createSlice({
@@ -40,6 +43,21 @@ export const productsStore = createSlice({
     [fetchAllProducts.rejected]: (state) => {
       state.productsListLoading = false;
       state.productsList = [];
+    },
+
+    // GET ALL GROUPED
+    [fetchProductsGrouped.pending]: (state) => {
+      state.groupedProductsListLoading = true;
+    },
+    [fetchProductsGrouped.fulfilled]: (state, { payload }) => {
+      state.groupedProductsListLoading = false;
+      if (payload === null || payload === undefined) return;
+
+      state.groupedProductsList = payload;
+    },
+    [fetchProductsGrouped.rejected]: (state) => {
+      state.groupedProductsListLoading = false;
+      state.groupedProductsList = null;
     },
 
     // GET ALL SHORT
@@ -93,5 +111,5 @@ export const productsStore = createSlice({
 });
 
 // export const { increment } = products.actions;
-export { fetchAllProducts, insertNewProduct, updateProductById, deleteProductById, fetchProductsShort };
+export { fetchAllProducts, insertNewProduct, updateProductById, deleteProductById, fetchProductsShort, fetchProductsGrouped };
 export default productsStore.reducer;

@@ -22,3 +22,7 @@ export async function getProductsShort({ payload, callback } = {}) {
   const params = stringify(payload);
   return await request({ method: 'get', url: `/product/short?${params}`, callback })
 }
+
+export async function getProductsGroupedByType({ payload, callback } = {}) {
+  return await request({ method: 'get', url: `/product/grouped`, callback })
+}

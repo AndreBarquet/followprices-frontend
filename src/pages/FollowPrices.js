@@ -63,10 +63,8 @@ function FollowPrices() {
 
     const callback = (response) => {
       const listMapped = JSON.parse(JSON.stringify(showingProducts));
-      listMapped[currentProductIndex] = {
-        ...listMapped[currentProductIndex],
-        productsList: response,
-      };
+
+      listMapped[currentProductIndex] = { ...listMapped[currentProductIndex], productsList: response };
       setShowingProducts(listMapped);
     }
 
@@ -79,10 +77,8 @@ function FollowPrices() {
 
     const callback = (response) => {
       const listMapped = JSON.parse(JSON.stringify(showingProducts));
-      listMapped[currentProductIndex] = {
-        ...listMapped[currentProductIndex],
-        prices: response?.content ?? [],
-      };
+
+      listMapped[currentProductIndex] = { ...listMapped[currentProductIndex], prices: response?.content ?? [] };
       setShowingProducts(listMapped);
     };
 
@@ -92,7 +88,7 @@ function FollowPrices() {
   function onTypeChange(selectedType, currentProductIndex) {
     showingProducts[currentProductIndex] = {
       ...showingProducts[currentProductIndex],
-      type: selectedType?.description,
+      type: selectedType,
       product: undefined,
       productsList: [],
       prices: [],
@@ -103,7 +99,7 @@ function FollowPrices() {
   function onProductChange(selectedProduct, currentProductIndex) {
     showingProducts[currentProductIndex] = {
       ...showingProducts[currentProductIndex],
-      product: selectedProduct?.name,
+      product: selectedProduct,
       prices: [],
     };
     retrieveProductPrice(selectedProduct, currentProductIndex);
@@ -120,7 +116,8 @@ function FollowPrices() {
         <Autocomplete
           disablePortal
           options={typesShortList ?? []}
-          getOptionLabel={(option) => option.description}
+          getOptionLabel={option => option.description}
+          noOptionsText="Não há dados"
           sx={{ width: 300 }}
           value={currentItem?.type}
           onChange={(_, value) => onTypeChange(value, itemIndex)}
@@ -129,7 +126,8 @@ function FollowPrices() {
         <Autocomplete
           disablePortal
           options={currentItem?.productsList ?? []}
-          getOptionLabel={(option) => option.name}
+          getOptionLabel={option => option.name}
+          noOptionsText="Não há dados"
           sx={{ width: 400 }}
           value={currentItem?.product}
           onChange={(_, value) => onProductChange(value, itemIndex)}
@@ -163,9 +161,14 @@ function FollowPrices() {
         Acompanhar produto
       </Button>
       {exists(showingProducts) && showingProducts.length > 0 && showingProducts.map((currentItem, itemIndex) => (
-        <Accordion defaultExpanded={true}>
-          <AccordionSummary expandIcon={<CloseIcon onClick={() => removeCurrentProduct(itemIndex)} />} id={0}>
-            <Typography>{currentItem?.product ?? 'Acompanhar novo produto'}</Typography>
+        <Accordion defaultExpanded={true} key={itemIndex}>
+          <AccordionSummary expandIcon={<CloseIcon onClick={() => removeCurrentProduct(itemIndex)} />} id={itemIndex}>
+            <Typography>
+              {currentItem?.product?.name ?? 'Acompanhar novo produto'}
+              {exists(currentItem?.product?.description) &&
+                <p style={{ margin: 0, fontSize: 15, color: '#9f9f9f' }}>{currentItem?.product?.description}</p>
+              }
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             {renderFilters(currentItem, itemIndex)}

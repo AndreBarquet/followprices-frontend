@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 // Redux
 import { deleteProductById, fetchAllProducts, insertNewProduct, updateProductById } from "../model/productsStore";
@@ -7,8 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { insertNewPrice } from "../model/pricesStore";
 
 // Components
-import { DataGrid } from "@mui/x-data-grid";
-import { Autocomplete, Button, CircularProgress, MenuItem, Pagination, TextField, Grid, Tooltip } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, MenuItem, TextField, Grid, Tooltip } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CurrencyTextField from '@unicef/material-ui-currency-textfield';
@@ -27,7 +26,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import DolarIcon from '@mui/icons-material/AttachMoney';
 
 // Styles
-import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
+import { FiltersTitle, FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
+import Table from "../Components/Table/Table";
 
 const DEFAULT_PRODUCT_VALUES = { name: '', description: '', store: '', typeId: '' };
 const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: '', inTermValue: '', productId: '' };
@@ -319,7 +319,7 @@ function Products() {
       {<Tooltip title="Editar produto" placement="top"><EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" /></Tooltip>}
       {<Tooltip title="Adicionar preço" placement="top"><DolarIcon onClick={() => onAddPriceOpen(row)} className="tableActionIcon" /></Tooltip>}
     </div>
-  )
+  );
 
   const columns = [
     { field: 'name', headerName: 'Produto', flex: 1, valueGetter: ({ row }) => safeNull(row?.name), sortable: true },
@@ -329,45 +329,53 @@ function Products() {
     { headerName: 'Ações', renderCell: renderActionButtons, flex: 1 },
   ];
 
+  const productsTable = useMemo(() => (
+    <Table
+      dataSource={productsList}
+      columns={columns}
+      loading={productsListLoading}
+      onOrdenationChange={onOrdenationChange}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+    />
+  ), [productsList, productsListLoading]);
+
+  const renderProductsTable = (
+    <div className="container">
+      <TableHeader>
+        <span>Lista de produtos</span>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
+          Novo produto
+        </Button>
+      </TableHeader>
+      {productsTable}
+    </div>
+  );
+
+  const renderTableFilters = (
+    <div className="container">
+      <FiltersTitle>Filtros</FiltersTitle>
+      <Autocomplete
+        disablePortal
+        options={typesShortList ?? []}
+        getOptionLabel={(option) => option.description}
+        noOptionsText="Não há dados"
+        sx={{ width: 300 }}
+        value={filters?.type}
+        onChange={(_, value) => setFilters({ ...filters, type: value })}
+        renderInput={(params) => <TextField {...params} label="Tipo de produto" size="small" />}
+      />
+    </div>
+  )
+
   return (
     <div className="App">
+      {renderTableFilters}
       <Grid container spacing={2} className="alignContentCenter">
         {showProductForm && renderNewProductForm()}
         {showAddPriceForm && renderAddPriceForm()}
       </Grid>
-      <div className="container">
-        <TableHeader>
-          <Autocomplete
-            disablePortal
-            options={typesShortList ?? []}
-            // colocar na propriedade o campo da lsita de objetos que vai conter o texto a ser mostrado na lista
-            getOptionLabel={(option) => option.description}
-            sx={{ width: 300 }}
-            value={filters?.type}
-            onChange={(_, value) => setFilters({ ...filters, type: value })}
-            renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
-          />
-          <span>Lista de produtos</span>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
-            Novo produto
-          </Button>
-        </TableHeader>
-        <DataGrid
-          autoHeight
-          rows={productsList ?? []}
-          columns={columns ?? []}
-          headerHeight={45}
-          // checkboxSelection
-          hideFooterPagination
-          hideFooter
-          onSortModelChange={onOrdenationChange}
-          rowHeight={45}
-          loading={productsListLoading}
-        />
-        <div className="paginationAlign">
-          <Pagination count={totalPages} size="small" onChange={onPageChange} />
-        </div>
-      </div>
+      {renderProductsTable}
     </div>
   );
 }

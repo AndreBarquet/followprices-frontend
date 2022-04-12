@@ -5,10 +5,17 @@ const TableHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0px 15px;
-
+  margin-bottom: 10px;
   span{
     font-size: 18px;
   }
+`;
+
+const FiltersTitle = styled.p`
+  margin: 0px 0px 9px;
+  font-size: 17px;
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 8px;
 `;
 
 const FormTitle = styled.div`
@@ -34,5 +41,6 @@ const FormBtnContainer = styled.div`
 export {
   FormBtnContainer,
   FormTitle,
-  TableHeader
+  TableHeader,
+  FiltersTitle,
 };

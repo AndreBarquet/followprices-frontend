@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 // Redux
 import { fetchAllTypes, deleteTypeById, insertNewType, updateTypeById } from "../model/typesStore";
@@ -7,10 +7,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useSnackbar } from "notistack";
 
 // Components
-import { DataGrid } from "@mui/x-data-grid";
-import { Button, CircularProgress, Pagination, TextField, Grid, Tooltip } from "@mui/material";
+import { Button, CircularProgress, TextField, Grid, Tooltip } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
+import Table from "../Components/Table/Table";
 
 // Icons
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -193,35 +193,36 @@ function Types() {
     )
   }
 
+  const typesTable = useMemo(() => (
+    <Table
+      dataSource={typesList}
+      columns={columns}
+      loading={typesListLoading}
+      onOrdenationChange={onOrdenationChange}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
+      sortingMode="server"
+    />
+  ), [typesList, typesListLoading]);
+
+  const renderTypesTable = (
+    <div className="container">
+      <TableHeader>
+        <span>Lista de tipos</span>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
+          Novo tipo
+        </Button>
+      </TableHeader>
+      {typesTable}
+    </div>
+  )
+
   return (
     <div className="App">
       <Grid container spacing={2} className="alignContentCenter">
         {showForm && renderNewTypeForm()}
       </Grid>
-      <div className="container">
-        <TableHeader>
-          <span>Lista de tipos</span>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
-            Novo tipo
-          </Button>
-        </TableHeader>
-        <DataGrid
-          className="table"
-          autoHeight
-          rows={typesList ?? []}
-          columns={columns ?? []}
-          headerHeight={45}
-          hideFooterPagination
-          hideFooter
-          sortingMode="server"
-          onSortModelChange={onOrdenationChange}
-          rowHeight={45}
-          loading={typesListLoading}
-        />
-        <div className="paginationAlign">
-          <Pagination count={totalPages} size="small" onChange={onPageChange} />
-        </div>
-      </div>
+      {renderTypesTable}
     </div>
   );
 }
