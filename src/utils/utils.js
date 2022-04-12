@@ -1,5 +1,5 @@
 import axios from "axios";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
@@ -30,6 +30,16 @@ export function notExists(value) {
   return value === null || value === undefined;
 }
 
+export function isNotNumber(value) {
+  if (typeof value !== 'number') return true;
+  return false;
+}
+
+export function isNotString(value) {
+  if (typeof value !== 'string') return true;
+  return false;
+}
+
 export function isEmptyString(value) {
   if (typeof value !== "string") return false;
   if (value.trim() === "") return true;
@@ -47,7 +57,9 @@ export function requiredFieldError(value) {
 
 export function formatDate(value) {
   if (notExists(value)) return;
-  return format(value, 'dd/MM/yyyy');
+  const isDateObj = value instanceof Date;
+
+  return format(isDateObj ? value : parseISO(value), 'dd/MM/yyyy');
 }
 
 export function formatDateToRequest(value) {

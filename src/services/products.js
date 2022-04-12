@@ -18,7 +18,7 @@ export async function deleteProduct({ payload, callback } = {}) {
   return await request({ method: 'delete', url: `/product/${payload}`, callback })
 };
 
-export async function getShort({ payload, callback } = {}) {
+export async function getProductsShort({ payload, callback } = {}) {
   const params = stringify(payload);
   return await request({ method: 'get', url: `/product/short?${params}`, callback })
 }

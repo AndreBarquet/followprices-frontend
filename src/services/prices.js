@@ -1,9 +1,9 @@
 import { request } from "../utils/utils";
 import { stringify } from 'qs';
 
-export async function getPrices({ payload } = {}) {
+export async function getPrices({ payload, callback } = {}) {
   const params = stringify(payload);
-  return await request({ method: 'get', url: `/prices/?${params}` })
+  return await request({ method: 'get', url: `/prices/?${params}`, callback })
 };
 
 export async function insertPrice({ payload, callback }) {

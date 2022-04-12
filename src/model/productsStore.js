@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { getAllProducts, insertProduct, updateProduct, deleteProduct } from '../services/products';
+import { getAllProducts, insertProduct, updateProduct, deleteProduct, getProductsShort } from '../services/products';
 
 const fetchAllProducts = createAsyncThunk('products/getAll', getAllProducts);
 const insertNewProduct = createAsyncThunk('products/insert', insertProduct);
 const updateProductById = createAsyncThunk('products/update', updateProduct);
 const deleteProductById = createAsyncThunk('products/delete', deleteProduct);
+const fetchProductsShort = createAsyncThunk('products/getShort', getProductsShort);
 
 const initialState = {
   productsList: [],
@@ -14,6 +15,8 @@ const initialState = {
   insertLoading: false,
   updateLoading: false,
   deleteLoading: false,
+  loadingProductsShortList: false,
+  productsShortList: [],
 };
 
 export const productsStore = createSlice({
@@ -30,12 +33,28 @@ export const productsStore = createSlice({
     [fetchAllProducts.fulfilled]: (state, { payload }) => {
       state.productsListLoading = false;
       if (payload === null || payload === undefined) return;
+
       state.productsList = payload?.content;
       state.totalPages = payload?.totalPages;
     },
     [fetchAllProducts.rejected]: (state) => {
       state.productsListLoading = false;
       state.productsList = [];
+    },
+
+    // GET ALL SHORT
+    [fetchProductsShort.pending]: (state) => {
+      state.loadingProductsShortList = true;
+    },
+    [fetchProductsShort.fulfilled]: (state, { payload }) => {
+      state.loadingProductsShortList = false;
+      if (payload === null || payload === undefined) return;
+
+      state.productsShortList = payload;
+    },
+    [fetchProductsShort.rejected]: (state) => {
+      state.loadingProductsShortList = false;
+      state.productsShortList = [];
     },
 
     // INSERT
@@ -74,5 +93,5 @@ export const productsStore = createSlice({
 });
 
 // export const { increment } = products.actions;
-export { fetchAllProducts, insertNewProduct, updateProductById, deleteProductById };
+export { fetchAllProducts, insertNewProduct, updateProductById, deleteProductById, fetchProductsShort };
 export default productsStore.reducer;

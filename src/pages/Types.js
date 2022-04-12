@@ -148,7 +148,6 @@ function Types() {
   )
 
   const columns = [
-    { field: 'id', headerName: 'ID', flex: 1 },
     { field: 'description', headerName: 'Descrição', flex: 1 },
     { field: 'type', headerName: 'Tipo', sortable: true, flex: 1, valueGetter: ({ row }) => safeNull(row?.type) },
     { headerName: 'Ações', renderCell: renderActionButtons, flex: 1 },
@@ -211,7 +210,6 @@ function Types() {
           autoHeight
           rows={typesList ?? []}
           columns={columns ?? []}
-          checkboxSelection
           headerHeight={45}
           hideFooterPagination
           hideFooter

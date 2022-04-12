@@ -29,7 +29,7 @@ import DolarIcon from '@mui/icons-material/AttachMoney';
 // Styles
 import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 
-const DEFAULT_PRODUCT_VALUES = { name: '', description: '', typeId: '' };
+const DEFAULT_PRODUCT_VALUES = { name: '', description: '', store: '', typeId: '' };
 const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: '', inTermValue: '', productId: '' };
 
 function Products() {
@@ -150,16 +150,9 @@ function Products() {
   }
 
   function mapRowDataToForm(record) {
-    const body = {
-      id: record?.id,
-      name: record?.name,
-      description: record?.description,
-      typeId: record?.typeId
-    };
-
-    setProductFormFields(body);
+    const bodyMapped = { id: record?.id, name: record?.name, description: record?.description, typeId: record?.typeId, store: record?.store };
+    setProductFormFields(bodyMapped);
     setShowProductForm(true);
-    // ou assim setProductFormFields({...record}) !!! Porem assim, os campos que vem do back tem que estar exatamente iguais aos do form que vc usa no input
     setIsUpdating(true);
   }
 
@@ -185,20 +178,6 @@ function Products() {
   useEffect(() => {
     retrieveTypesShort();
   }, []);
-
-  const renderActionButtons = ({ row }) => (
-    <div style={{ position: 'relative' }}>
-      {!deleteLoading ?
-        <Tooltip title="Excluir produto" placement="top">
-          <DeleteIcon onClick={() => deleteProduct(row)} className="tableActionIcon" />
-        </Tooltip>
-        :
-        <CircularProgress size={30} />
-      }
-      {<Tooltip title="Editar produto" placement="top"><EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" /></Tooltip>}
-      {<Tooltip title="Adicionar preço" placement="top"><DolarIcon onClick={() => onAddPriceOpen(row)} className="tableActionIcon" /></Tooltip>}
-    </div>
-  )
 
   const renderNewProductForm = () => {
     return (
@@ -226,6 +205,15 @@ function Products() {
                 variant="standard"
                 fullWidth
                 helperText={requiredFieldError(productFormFields?.description) && hasSendProductForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                value={productFormFields?.store}
+                onChange={e => setProductFormFields({ ...productFormFields, store: e?.target?.value })}
+                label="Loja"
+                variant="standard"
+                fullWidth
               />
             </Grid>
             <Grid item xs={12}>
@@ -312,17 +300,31 @@ function Products() {
           </Grid>
           <FormBtnContainer>
             <Button variant="outlined" onClick={onPriceFormCancel} startIcon={<CloseIcon />}>Cancelar</Button>
-            <LoadingButton variant="contained" onClick={insertPrice} startIcon={<SaveIcon />}>Salvar</LoadingButton>
+            <LoadingButton variant="contained" onClick={insertPrice} loading={insertPriceLoading} startIcon={<SaveIcon />}>Salvar</LoadingButton>
           </FormBtnContainer>
         </div>
       </Grid>
     );
   }
 
+  const renderActionButtons = ({ row }) => (
+    <div style={{ position: 'relative' }}>
+      {!deleteLoading ?
+        <Tooltip title="Excluir produto" placement="top">
+          <DeleteIcon onClick={() => deleteProduct(row)} className="tableActionIcon" />
+        </Tooltip>
+        :
+        <CircularProgress size={30} />
+      }
+      {<Tooltip title="Editar produto" placement="top"><EditIcon onClick={() => mapRowDataToForm(row)} className="tableActionIcon" /></Tooltip>}
+      {<Tooltip title="Adicionar preço" placement="top"><DolarIcon onClick={() => onAddPriceOpen(row)} className="tableActionIcon" /></Tooltip>}
+    </div>
+  )
+
   const columns = [
-    { field: 'id', headerName: 'ID', flex: 1 },
     { field: 'name', headerName: 'Produto', flex: 1, valueGetter: ({ row }) => safeNull(row?.name), sortable: true },
-    { field: 'description', headerName: 'Descrição', flex: 1 },
+    { field: 'description', headerName: 'Descrição', flex: 2 },
+    { field: 'store', headerName: 'Loja', flex: 1, valueGetter: ({ row }) => safeNull(row?.store) },
     { field: 'typeId', headerName: 'Tipo do produto', valueGetter: ({ row }) => safeNull(row?.type?.description), flex: 1 },
     { headerName: 'Ações', renderCell: renderActionButtons, flex: 1 },
   ];
@@ -346,9 +348,9 @@ function Products() {
             renderInput={(params) => <TextField {...params} label="Tipo de produto" variant="standard" />}
           />
           <span>Lista de produtos</span>
-          <LoadingButton variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} loading={insertPriceLoading} disabled={isUpdating}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={openInsertForm} disabled={isUpdating}>
             Novo produto
-          </LoadingButton>
+          </Button>
         </TableHeader>
         <DataGrid
           autoHeight
