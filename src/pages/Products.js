@@ -29,8 +29,8 @@ import DolarIcon from '@mui/icons-material/AttachMoney';
 import { FiltersTitle, FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 import Table from "../Components/Table/Table";
 
-const DEFAULT_PRODUCT_VALUES = { name: '', description: '', store: '', typeId: '' };
-const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: '', inTermValue: '', productId: '' };
+const DEFAULT_PRODUCT_VALUES = { name: '', description: '', typeId: '' };
+const DEFAULT_PRICE_VALUES = { date: new Date(), inCashValue: '', inTermValue: '', productId: '', store: '' };
 
 function Products() {
   const dispatch = useDispatch();
@@ -150,7 +150,7 @@ function Products() {
   }
 
   function mapRowDataToForm(record) {
-    const bodyMapped = { id: record?.id, name: record?.name, description: record?.description, typeId: record?.typeId, store: record?.store };
+    const bodyMapped = { id: record?.id, name: record?.name, description: record?.description, typeId: record?.typeId };
     setProductFormFields(bodyMapped);
     setShowProductForm(true);
     setIsUpdating(true);
@@ -159,6 +159,13 @@ function Products() {
   function insertPrice() {
     setHasSendPriceForm(true);
     const payload = { ...priceFormFields, date: formatDateToRequest(priceFormFields?.date) };
+    const hasSomeError = (
+      requiredFieldError(priceFormFields?.date) || requiredFieldError(priceFormFields?.store) ||
+      requiredFieldError(priceFormFields?.inCashValue) || requiredFieldError(priceFormFields?.inTermValue)
+    );
+
+    if (hasSomeError) return;
+
     const callback = (response) => {
       if (exists(response?.error)) {
         enqueueSnackbar(response?.error, { variant: 'error' });
@@ -205,15 +212,6 @@ function Products() {
                 variant="standard"
                 fullWidth
                 helperText={requiredFieldError(productFormFields?.description) && hasSendProductForm ? "Campo obrigatório" : ""}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={productFormFields?.store}
-                onChange={e => setProductFormFields({ ...productFormFields, store: e?.target?.value })}
-                label="Loja"
-                variant="standard"
-                fullWidth
               />
             </Grid>
             <Grid item xs={12}>
@@ -297,6 +295,17 @@ function Products() {
                 helperText={requiredFieldError(priceFormFields?.inTermValue) && hasSendPriceForm ? "Campo obrigatório" : ""}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                error={requiredFieldError(priceFormFields?.store) && hasSendPriceForm}
+                value={priceFormFields?.store}
+                onChange={e => setPriceFormFields({ ...priceFormFields, store: e?.target?.value })}
+                label="Loja"
+                variant="standard"
+                fullWidth
+                helperText={requiredFieldError(priceFormFields?.store) && hasSendPriceForm ? "Campo obrigatório" : ""}
+              />
+            </Grid>
           </Grid>
           <FormBtnContainer>
             <Button variant="outlined" onClick={onPriceFormCancel} startIcon={<CloseIcon />}>Cancelar</Button>
@@ -323,8 +332,7 @@ function Products() {
 
   const columns = [
     { field: 'name', headerName: 'Produto', flex: 1, valueGetter: ({ row }) => safeNull(row?.name), sortable: true },
-    { field: 'description', headerName: 'Descrição', flex: 2 },
-    { field: 'store', headerName: 'Loja', flex: 1, valueGetter: ({ row }) => safeNull(row?.store) },
+    { field: 'description', headerName: 'Descrição', flex: 3 },
     { field: 'typeId', headerName: 'Tipo do produto', valueGetter: ({ row }) => safeNull(row?.type?.description), flex: 1 },
     { headerName: 'Ações', renderCell: renderActionButtons, flex: 1 },
   ];
