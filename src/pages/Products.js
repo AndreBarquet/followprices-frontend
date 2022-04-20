@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { insertNewPrice } from "../model/pricesStore";
 
 // Components
-import { Autocomplete, Button, CircularProgress, MenuItem, TextField, Grid, Tooltip } from "@mui/material";
+import { Autocomplete, Button, CircularProgress, MenuItem, TextField, Grid, Tooltip, Collapse } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import CurrencyTextField from '@unicef/material-ui-currency-textfield';
@@ -379,10 +379,12 @@ function Products() {
   return (
     <div className="App">
       {renderTableFilters}
-      <Grid container spacing={2} className="alignContentCenter">
-        {showProductForm && renderNewProductForm()}
-        {showAddPriceForm && renderAddPriceForm()}
-      </Grid>
+      <Collapse in={showProductForm || showAddPriceForm} timeout={500}>
+        <Grid container spacing={2} className="alignContentCenter">
+          {showProductForm && renderNewProductForm()}
+          {showAddPriceForm && renderAddPriceForm()}
+        </Grid>
+      </Collapse>
       {renderProductsTable}
     </div>
   );

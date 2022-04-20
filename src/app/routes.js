@@ -12,7 +12,7 @@ import MountYourSetup from '../pages/MountYourSetup';
 const routesList = [
   { path: "/inicio", name: "Início", component: <HomePage />, icon: <Home /> },
   { path: "/acompanhar-precos", name: "Acompanhar Preços", component: <FollowPricesPage />, icon: <BarChart /> },
-  { path: "/novo-setup", name: "Monte seu PC", component: <MountYourSetup />, icon: <Computer /> },
+  { path: "/setup/novo", name: "Monte seu PC", component: <MountYourSetup />, icon: <Computer /> },
   { path: "/produtos", name: "Produtos", component: <ProductsPage />, icon: <Dvr /> },
   { path: "/tipos", name: "Tipos de Produtos", component: <TypesPage />, icon: <AppSettingsAlt /> },
 ]

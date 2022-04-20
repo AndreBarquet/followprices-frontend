@@ -3,15 +3,17 @@ import React, { useEffect, useState } from "react";
 // Redux
 import { fetchProductsShort } from "../model/productsStore";
 import { fetchTypesShort } from "../model/typesStore";
-import { insertSetup } from "../model/setup";
+import { insertSetup } from "../model/setupsStore";
 import { useSelector, useDispatch } from 'react-redux';
 import { useSnackbar } from "notistack";
+import { useNavigate } from "react-router-dom";
 
 // Utils
-import { exists, notExists } from "../utils/utils";
+import { exists, notExists, requiredFieldError } from "../utils/utils";
 
 // Components
-import { Button, Drawer, Box, List, Backdrop, CircularProgress } from "@mui/material";
+import { Button, Drawer, Box, List, Backdrop, CircularProgress, TextField, Grid } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
 // Icons
 import AddIcon from '@mui/icons-material/Add';
@@ -19,6 +21,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ArrowRightIcon from '@mui/icons-material/ArrowForwardIos';
 import AddSetupIcon from '@mui/icons-material/DashboardCustomize';
 import BarChartIcon from '@mui/icons-material/Equalizer';
+import CloseIcon from '@mui/icons-material/Close';
 
 import styled from 'styled-components';
 
@@ -157,16 +160,29 @@ const GeneralActionButtonsContainer = styled.div`
   }
 `;
 
+const DEFAULT_SETUP_FIELDS = { name: '', description: '' };
+
 function MountYourSetup() {
   const dispatch = useDispatch();
+  const history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const { productsShortList, loadingProductsShortList } = useSelector((state) => state.products);
   const { typesShortList, typesShortListLoading } = useSelector((state) => state.types);
+  const { saveSetupLoading } = useSelector((state) => state.setups);
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [openedSectionType, setOpenedSectionType] = useState(null)
   const [selectedProductsByType, setSelectedProductsByType] = useState({});
+  const [showSaveSetupForm, setShowSaveSetupForm] = useState(false);
+  const [setupForm, setSetupForm] = useState({ ...DEFAULT_SETUP_FIELDS });
+  const [hasSendSetupForm, setHasSendSetupForm] = useState(false);
+
+  function onFormCancel() {
+    setShowSaveSetupForm(false);
+    setSetupForm({ ...DEFAULT_SETUP_FIELDS });
+    setHasSendSetupForm(false);
+  }
 
   function retrieveProductsList(typeId) {
     if (notExists(typeId)) return;
@@ -183,14 +199,18 @@ function MountYourSetup() {
   }
 
   function saveSetup() {
-    if (notExists(selectedProductsByType) || Object.keys(selectedProductsByType).length <= 0) return;
+    setHasSendSetupForm(true);
+
+    const hasSomeError = requiredFieldError(setupForm?.name);
+    if (hasSomeError) return;
 
     const products = []
     Object.keys(selectedProductsByType).forEach(currentType => {
       const currentTypeSelectedProducts = selectedProductsByType[currentType];
       products.push(...currentTypeSelectedProducts);
     });
-    const payload = { name: 'Teste', description: 'NOVO TESTEE', products };
+
+    const payload = { ...setupForm, products };
 
     const callback = (response) => {
       if (exists(response?.error)) {
@@ -199,6 +219,7 @@ function MountYourSetup() {
       }
 
       enqueueSnackbar(`Setup ${response?.name} salvo com sucesso`, { variant: 'success' });
+      history(`/setup/detalhes?setup=${response?.id}`)
     }
     dispatch(insertSetup({ payload, callback }))
   }
@@ -298,7 +319,7 @@ function MountYourSetup() {
   }
 
   const renderProductTypesSection = () => {
-    if (notExists(typesShortList) || typesShortList.length <= 0) return;
+    if (notExists(typesShortList) || typesShortList.length <= 0 || showSaveSetupForm) return;
 
     return typesShortList.map(currentType => {
       if (notExists(selectedProductsByType[currentType?.type]) || selectedProductsByType[currentType?.type].length <= 0) return (
@@ -329,18 +350,76 @@ function MountYourSetup() {
     });
   }
 
+  const renderSetupFormFields = () => {
+    if (!showSaveSetupForm) return;
+
+    return (
+      <Grid container spacing={2} className="alignContentCenter">
+        <Grid item xs={12} md={6} lg={5} xl={3}>
+          <div className="container" style={{ textAlign: "center", padding: '20px 15px 27px' }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  error={requiredFieldError(setupForm?.name) && hasSendSetupForm}
+                  value={setupForm?.name}
+                  onChange={e => setSetupForm({ ...setupForm, name: e?.target?.value })}
+                  label="Nome do setup"
+                  variant="standard"
+                  fullWidth
+                  helperText={requiredFieldError(setupForm?.name) && hasSendSetupForm ? "Campo obrigatório" : ""}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  value={setupForm?.description}
+                  onChange={e => setSetupForm({ ...setupForm, description: e?.target?.value })}
+                  label="Descrição Adicional"
+                  variant="standard"
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+          </div>
+        </Grid>
+      </Grid>
+    )
+  }
+
+  const renderMainActionButtons = () => {
+    const invalidProductSelection = () => {
+      if (notExists(selectedProductsByType) || Object.keys(selectedProductsByType).length <= 0) return true;
+
+      let hasError = true;
+      Object.keys(selectedProductsByType).forEach(currentType => {
+        if (selectedProductsByType[currentType].length > 0) {
+          hasError = false;
+          return;
+        }
+      })
+
+      return hasError;
+    }
+
+    if (typesShortListLoading || invalidProductSelection()) return;
+
+    return (
+      <GeneralActionButtonsContainer>
+        {!showSaveSetupForm && <Button variant="contained" startIcon={<AddSetupIcon />} onClick={() => setShowSaveSetupForm(true)}>Salvar setup</Button>}
+        {!showSaveSetupForm && <Button variant="contained" startIcon={<BarChartIcon />}>Ver resumo</Button>}
+        {showSaveSetupForm && <LoadingButton variant="contained" startIcon={<AddSetupIcon />} loading={saveSetupLoading} onClick={saveSetup}>Salvar e ver detalhes</LoadingButton>}
+        {showSaveSetupForm && <Button variant="outlined" startIcon={<CloseIcon />} onClick={onFormCancel} disabled={saveSetupLoading}>Cancelar</Button>}
+      </GeneralActionButtonsContainer>
+    )
+  }
+
   return (
     <div className="App" style={{ padding: '10px 30px' }}>
       <Backdrop sx={{ color: '#74baff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={typesShortListLoading || loadingProductsShortList}>
         <CircularProgress color="inherit" />
       </Backdrop>
       {renderProductTypesSection()}
-      {!typesShortListLoading &&
-        <GeneralActionButtonsContainer>
-          <Button variant="contained" startIcon={<AddSetupIcon />} onClick={saveSetup}>Salvar Setup</Button>
-          <Button variant="contained" startIcon={<BarChartIcon />}>Ver Resumo</Button>
-        </GeneralActionButtonsContainer>
-      }
+      {renderSetupFormFields()}
+      {renderMainActionButtons()}
       <Drawer anchor="right" open={showDrawer} onClose={onCloseProductsOptions}>
         {renderProductsOptions()}
       </Drawer>

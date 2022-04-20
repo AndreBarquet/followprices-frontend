@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useSnackbar } from "notistack";
 
 // Components
-import { Button, CircularProgress, TextField, Grid, Tooltip } from "@mui/material";
+import { Button, CircularProgress, TextField, Grid, Tooltip, Collapse } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { FormBtnContainer, FormTitle, TableHeader } from "../utils/styles";
 import Table from "../Components/Table/Table";
@@ -219,9 +219,11 @@ function Types() {
 
   return (
     <div className="App">
-      <Grid container spacing={2} className="alignContentCenter">
-        {showForm && renderNewTypeForm()}
-      </Grid>
+      <Collapse in={showForm} timeout={500}>
+        <Grid container spacing={2} className="alignContentCenter">
+          {showForm && renderNewTypeForm()}
+        </Grid>
+      </Collapse>
       {renderTypesTable}
     </div>
   );

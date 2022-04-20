@@ -14,7 +14,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 
 // Components
 import FormattedNumer from '../Components/FormattedNumber/FormattedNumber';
-import { TextField, Autocomplete, Accordion, AccordionSummary, AccordionDetails, Typography, Button } from "@mui/material";
+import { TextField, Autocomplete, Accordion, AccordionSummary, AccordionDetails, Typography, Button, Fade } from "@mui/material";
 
 // Icons
 import CloseIcon from '@mui/icons-material/Close';
@@ -161,20 +161,22 @@ function FollowPrices() {
         Acompanhar produto
       </Button>
       {exists(showingProducts) && showingProducts.length > 0 && showingProducts.map((currentItem, itemIndex) => (
-        <Accordion defaultExpanded={true} key={itemIndex}>
-          <AccordionSummary expandIcon={<CloseIcon onClick={() => removeCurrentProduct(itemIndex)} />} id={itemIndex}>
-            <Typography>
-              {currentItem?.product?.name ?? 'Acompanhar novo produto'}
-              {exists(currentItem?.product?.description) &&
-                <p style={{ margin: 0, fontSize: 15, color: '#9f9f9f' }}>{currentItem?.product?.description}</p>
-              }
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {renderFilters(currentItem, itemIndex)}
-            {renderChart(currentItem?.prices)}
-          </AccordionDetails>
-        </Accordion>
+        <Fade in timeout={500}>
+          <Accordion defaultExpanded={true} key={itemIndex}>
+            <AccordionSummary expandIcon={<CloseIcon onClick={() => removeCurrentProduct(itemIndex)} />} id={itemIndex}>
+              <Typography>
+                {currentItem?.product?.name ?? 'Acompanhar novo produto'}
+                {exists(currentItem?.product?.description) &&
+                  <p style={{ margin: 0, fontSize: 15, color: '#9f9f9f' }}>{currentItem?.product?.description}</p>
+                }
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {renderFilters(currentItem, itemIndex)}
+              {renderChart(currentItem?.prices)}
+            </AccordionDetails>
+          </Accordion>
+        </Fade>
       ))
       }
     </div >
