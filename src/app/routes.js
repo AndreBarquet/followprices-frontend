@@ -7,6 +7,7 @@ import ProductsPage from '../pages/Products';
 import TypesPage from '../pages/Types';
 import FollowPricesPage from '../pages/FollowPrices';
 import MountYourSetup from '../pages/MountYourSetup';
+import SetupDetails from '../pages/SetupDetails';
 
 
 const routesList = [
@@ -15,6 +16,8 @@ const routesList = [
   { path: "/setup/novo", name: "Monte seu PC", component: <MountYourSetup />, icon: <Computer /> },
   { path: "/produtos", name: "Produtos", component: <ProductsPage />, icon: <Dvr /> },
   { path: "/tipos", name: "Tipos de Produtos", component: <TypesPage />, icon: <AppSettingsAlt /> },
+
+  { path: "/setup/detalhes", hideInMenu: true, component: <SetupDetails /> },
 ]
 
 export default routesList;

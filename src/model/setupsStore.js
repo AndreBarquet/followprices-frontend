@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { insertNewSetup, getAllSetups } from '../services/setup';
+import { insertNewSetup, getAllSetups, getDetails, getDetailsEvolution } from '../services/setup';
 
 const fetchAllSetups = createAsyncThunk('setup/all', getAllSetups);
-const insertSetup = createAsyncThunk('setup/login', insertNewSetup);
+const insertSetup = createAsyncThunk('setup/insert', insertNewSetup);
+const fetchSetupDetails = createAsyncThunk('setup/details', getDetails);
+const fetchSetupDetailsEvolution = createAsyncThunk('setup/evolution', getDetailsEvolution);
 
 const initialState = {
   saveSetupLoading: false,
@@ -10,6 +12,10 @@ const initialState = {
   loadingSetupsList: false,
   setupsList: null,
   totalPages: null,
+  setupSummary: null,
+  setupSummaryLoading: false,
+  setupProductsEvolution: null,
+  setupProductsEvolutionLoading: false,
 };
 
 export const currentUserStore = createSlice({
@@ -45,10 +51,34 @@ export const currentUserStore = createSlice({
     [insertSetup.rejected]: (state) => {
       state.saveSetupLoading = false;
     },
+
+    // FETCH SETUP DETAILS SUMMARY
+    [fetchSetupDetails.pending]: (state) => {
+      state.setupSummaryLoading = true;
+    },
+    [fetchSetupDetails.fulfilled]: (state, { payload }) => {
+      state.setupSummary = payload;
+      state.setupSummaryLoading = false;
+    },
+    [fetchSetupDetails.rejected]: (state) => {
+      state.setupSummaryLoading = false;
+    },
+
+    // FETCH  SETUP PRODUCTS EVOLUTION
+    [fetchSetupDetailsEvolution.pending]: (state) => {
+      state.setupProductsEvolutionLoading = true;
+    },
+    [fetchSetupDetailsEvolution.fulfilled]: (state, { payload }) => {
+      state.setupProductsEvolution = payload;
+      state.setupProductsEvolutionLoading = false;
+    },
+    [fetchSetupDetailsEvolution.rejected]: (state) => {
+      state.setupProductsEvolutionLoading = false;
+    },
   }
 });
 
 const { setSetupData } = currentUserStore.actions;
 
-export { insertSetup, setSetupData, fetchAllSetups };
+export { insertSetup, setSetupData, fetchAllSetups, fetchSetupDetails, fetchSetupDetailsEvolution, };
 export default currentUserStore.reducer;

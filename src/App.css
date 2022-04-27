@@ -56,6 +56,26 @@
   justify-content: center;
 }
 
+.setupCustomTooltip{
+  background-color: white;
+  padding: 5px 8px;
+}
+
+.setupCustomTooltipLabel{
+  margin: 1px;
+  font-weight: bold;
+}
+
+.setupCustomTooltipDate{
+  margin: 1px;
+  margin-bottom: 10px;
+  color: #a1a1a1;
+}
+
+.setupCustomTooltipValue{
+  margin: 1px;
+}
+
 @keyframes App-logo-float {
   0% {
     transform: translateY(0);

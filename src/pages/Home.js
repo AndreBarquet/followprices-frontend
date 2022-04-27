@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 // Redux
 import { fetchAllSetups } from "../model/setupsStore";
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from "react-router-dom";
 
 // Components
-import { Grow, Box, Button, Pagination } from '@mui/material';
+import { Grow, Box, Button, Pagination, Backdrop, CircularProgress } from '@mui/material';
 
 // General ENUMs
 import { DEFAULT_PAGINATION } from "../app/generalEnums";
@@ -76,6 +77,7 @@ const ActionButton = styled.div`
 
 function Home() {
   const dispatch = useDispatch();
+  const history = useNavigate();
   const { loadingSetupsList, setupsList, totalPages } = useSelector((state) => state.setups);
 
   const [pagination, setPagination] = useState({ ...DEFAULT_PAGINATION, size: 24 });
@@ -84,8 +86,9 @@ function Home() {
     dispatch(fetchAllSetups({ payload: { ...pagination } }));
   }
 
-  function goToDetails() {
-    alert("FOII");
+  function goToDetails(setupId) {
+    if (notExists(setupId)) return;
+    history(`/setup/detalhes?id=${setupId}`)
   }
 
   function onPageChange(_, pageNumber) {
@@ -105,7 +108,7 @@ function Home() {
           <p className="title">{currentSetup?.name}</p>
           <p className="description">{currentSetup?.description}</p>
         </CardInfo>
-        <CardActionContainer onClick={goToDetails}>
+        <CardActionContainer onClick={() => goToDetails(currentSetup?.id)}>
           <ArrowDropUpIcon />
           <ActionButton>Ver detalhes</ActionButton>
         </CardActionContainer>
@@ -125,7 +128,11 @@ function Home() {
 
   return (
     <div className="App" style={{ padding: 10 }}>
-      <h3>Meus Setups</h3>
+      <Backdrop sx={{ color: '#74baff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={loadingSetupsList}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
+      <h3 style={{ marginLeft: 15 }}>Meus Setups</h3>
       {renderSetupsCardsList()}
       {totalPages > 1 &&
         <div className="paginationAlign">

@@ -20,7 +20,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ArrowRightIcon from '@mui/icons-material/ArrowForwardIos';
 import AddSetupIcon from '@mui/icons-material/DashboardCustomize';
-import BarChartIcon from '@mui/icons-material/Equalizer';
 import CloseIcon from '@mui/icons-material/Close';
 
 import styled from 'styled-components';
@@ -219,7 +218,7 @@ function MountYourSetup() {
       }
 
       enqueueSnackbar(`Setup ${response?.name} salvo com sucesso`, { variant: 'success' });
-      history(`/setup/detalhes?setup=${response?.id}`)
+      history(`/setup/detalhes?id=${response?.id}`)
     }
     dispatch(insertSetup({ payload, callback }))
   }
@@ -405,7 +404,6 @@ function MountYourSetup() {
     return (
       <GeneralActionButtonsContainer>
         {!showSaveSetupForm && <Button variant="contained" startIcon={<AddSetupIcon />} onClick={() => setShowSaveSetupForm(true)}>Salvar setup</Button>}
-        {!showSaveSetupForm && <Button variant="contained" startIcon={<BarChartIcon />}>Ver resumo</Button>}
         {showSaveSetupForm && <LoadingButton variant="contained" startIcon={<AddSetupIcon />} loading={saveSetupLoading} onClick={saveSetup}>Salvar e ver detalhes</LoadingButton>}
         {showSaveSetupForm && <Button variant="outlined" startIcon={<CloseIcon />} onClick={onFormCancel} disabled={saveSetupLoading}>Cancelar</Button>}
       </GeneralActionButtonsContainer>

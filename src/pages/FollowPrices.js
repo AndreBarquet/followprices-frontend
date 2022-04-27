@@ -13,7 +13,7 @@ import { exists, formatDate, notExists } from "../utils/utils";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // Components
-import FormattedNumer from '../Components/FormattedNumber/FormattedNumber';
+import FormattedNumber from '../Components/FormattedNumber/FormattedNumber';
 import { TextField, Autocomplete, Accordion, AccordionSummary, AccordionDetails, Typography, Button, Fade } from "@mui/material";
 
 // Icons
@@ -145,8 +145,8 @@ function FollowPrices() {
         <LineChart width={1020} height={200} data={dataSource} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" tickFormatter={value => formatDate(value) ?? '-'} />
-          <YAxis />
-          <Tooltip formatter={(value, name) => [<FormattedNumer prefix="R$ " value={value} />, priceTypeLabel[name]]} labelFormatter={value => `Data: ${formatDate(value) ?? '-'}`} />
+          <YAxis tickFormatter={value => exists(value) ? value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }) : 0} />
+          <Tooltip formatter={(value, name) => [<FormattedNumber prefix="R$ " value={value} />, priceTypeLabel[name]]} labelFormatter={value => `Data: ${formatDate(value) ?? '-'}`} />
           <Legend formatter={value => priceTypeLabel[value]} />
           <Line type="monotone" dataKey="inCashValue" stroke="#82ca9d" />
           <Line type="monotone" dataKey="inTermValue" stroke="#8884d8" />
@@ -179,7 +179,7 @@ function FollowPrices() {
         </Fade>
       ))
       }
-    </div >
+    </div>
   );
 }
 

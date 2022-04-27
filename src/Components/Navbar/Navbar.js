@@ -60,7 +60,7 @@ const Navbar = props => {
       onKeyDown={() => setShowDrawer(false)}
     >
       <List>
-        {routes.map(currentPage => (
+        {routes.map(currentPage => !currentPage?.hideInMenu && (
           <ItemPage button key={currentPage?.path} active={currentPage?.name === currentPageName} onClick={() => redirect(currentPage?.path)}>
             <ListItemIcon>{currentPage?.icon}</ListItemIcon>
             <ListItemText primary={currentPage?.name} />
